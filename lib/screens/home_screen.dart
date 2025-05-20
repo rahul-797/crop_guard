@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crop_guard/models/user/user_model.dart';
 import 'package:crop_guard/screens/camera_screen.dart';
+import 'package:crop_guard/screens/profile_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../login_service.dart';
+import 'package:get_storage/get_storage.dart';
 
 BorderRadius splitBorder(int index) {
   return index == 0
@@ -20,7 +21,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final LoginService loginService = LoginService.instance;
+  GetStorage box = GetStorage();
+
+  @override
+  void initState() {
+    _loadUserData();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,19 +36,32 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text("Welcome ${FirebaseAuth.instance.currentUser!.displayName!.split(" ").first}"),
         actions: [
-          IconButton(
-            onPressed: () {
-              showLogoutConfirmDialog();
-            },
-            icon: const Icon(Icons.logout),
-          ),
+          IconButton(onPressed: () => Get.to(ProfileScreen()), icon: const Icon(Icons.person)),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
+      body: Placeholder(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Get.to(CameraScreen()),
+        child: Icon(Icons.camera_alt),
+      ),
+    );
+  }
+
+  Future<void> _loadUserData() async {
+    final doc =
+        await FirebaseFirestore.instance
+            .collection("users")
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .get();
+    AppUser user = AppUser.fromJson(doc.data()!);
+    box.write("userId", user.userId);
+    box.write("photoURL", user.photoURL);
+    print(user);
+  }
+}
+
+/**
+StreamBuilder<QuerySnapshot>(
                 stream:
                     FirebaseFirestore.instance
                         .collection('habits')
@@ -70,44 +90,4 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
               ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Get.to(CameraScreen()),
-        child: Icon(Icons.camera_alt),
-      ),
-    );
-  }
-
-  showLogoutConfirmDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext ctx) {
-        return AlertDialog(
-          title: const Text('Confirmation'),
-          content: const Text('Logout from this account?'),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                loginService.logout();
-              },
-              style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.redAccent)),
-              child: const Text('Yes', style: TextStyle(color: Colors.white)),
-            ),
-            const SizedBox(width: 6),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.grey.shade400)),
-              child: const Text('No', style: TextStyle(color: Colors.black87)),
-            ),
-            const SizedBox(width: 2),
-          ],
-        );
-      },
-    );
-  }
-}
+ **/

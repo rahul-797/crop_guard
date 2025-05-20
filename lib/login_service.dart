@@ -11,6 +11,7 @@ class LoginService {
   static final FirebaseAuth auth = FirebaseAuth.instance;
   static late User? user;
   final GoogleSignIn googleSignIn = GoogleSignIn();
+  GetStorage box = GetStorage();
 
   LoginService._privateConstructor();
 
@@ -32,7 +33,6 @@ class LoginService {
         user = userCredential.user;
 
         try {
-          GetStorage box = GetStorage();
           AppUser user = AppUser(
             userId: FirebaseAuth.instance.currentUser!.uid,
             displayName: FirebaseAuth.instance.currentUser!.displayName ?? '',
@@ -40,9 +40,6 @@ class LoginService {
             createdAt: DateTime.now(),
           );
 
-          box.write("userId", user.userId);
-
-          print(box.read("user"));
           FirebaseFirestore.instance
               .collection('users')
               .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -70,6 +67,7 @@ class LoginService {
 
   logout() async {
     try {
+      box.erase();
       await googleSignIn.signOut();
       await auth.signOut();
       Get.offAll(() => const LoginScreen());
