@@ -1,3 +1,4 @@
+import 'package:crop_guard/controllers/camera_controller.dart';
 import 'package:crop_guard/screens/home_screen.dart';
 import 'package:crop_guard/screens/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,6 +13,7 @@ void main() async {
   await GetStorage.init();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  Get.put(CameraService());
   runApp(
     GetMaterialApp(
       home: FirebaseAuth.instance.currentUser == null ? LoginScreen() : HomeScreen(),
