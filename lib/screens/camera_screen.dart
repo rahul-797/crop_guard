@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:crop_guard/screens/prediction_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -77,10 +78,17 @@ class _CameraScreenState extends State<CameraScreen> {
                         ),
                       ),
                     ),
-                    CircleAvatar(
-                      backgroundColor: Colors.white,
-                      radius: 24,
-                      child: Icon(Icons.navigate_next, size: 36),
+                    GestureDetector(
+                      onTap: () {
+                        if (_selectedImage != null) {
+                          Get.to(PredictionScreen(image: _selectedImage!));
+                        }
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white,
+                        radius: 24,
+                        child: Icon(Icons.navigate_next, size: 36),
+                      ),
                     ),
                   ],
                 ),
