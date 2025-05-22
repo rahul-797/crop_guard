@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DetectionHistory {
 
- String get imageURL; double get confidence; int get index;
+ String get imageURL; double get confidence; int get index;@TimestampConverter() DateTime? get createdAt;
 /// Create a copy of DetectionHistory
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -29,16 +29,16 @@ $DetectionHistoryCopyWith<DetectionHistory> get copyWith => _$DetectionHistoryCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DetectionHistory&&(identical(other.imageURL, imageURL) || other.imageURL == imageURL)&&(identical(other.confidence, confidence) || other.confidence == confidence)&&(identical(other.index, index) || other.index == index));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DetectionHistory&&(identical(other.imageURL, imageURL) || other.imageURL == imageURL)&&(identical(other.confidence, confidence) || other.confidence == confidence)&&(identical(other.index, index) || other.index == index)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,imageURL,confidence,index);
+int get hashCode => Object.hash(runtimeType,imageURL,confidence,index,createdAt);
 
 @override
 String toString() {
-  return 'DetectionHistory(imageURL: $imageURL, confidence: $confidence, index: $index)';
+  return 'DetectionHistory(imageURL: $imageURL, confidence: $confidence, index: $index, createdAt: $createdAt)';
 }
 
 
@@ -49,7 +49,7 @@ abstract mixin class $DetectionHistoryCopyWith<$Res>  {
   factory $DetectionHistoryCopyWith(DetectionHistory value, $Res Function(DetectionHistory) _then) = _$DetectionHistoryCopyWithImpl;
 @useResult
 $Res call({
- String imageURL, double confidence, int index
+ String imageURL, double confidence, int index,@TimestampConverter() DateTime? createdAt
 });
 
 
@@ -66,12 +66,13 @@ class _$DetectionHistoryCopyWithImpl<$Res>
 
 /// Create a copy of DetectionHistory
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? imageURL = null,Object? confidence = null,Object? index = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? imageURL = null,Object? confidence = null,Object? index = null,Object? createdAt = freezed,}) {
   return _then(_self.copyWith(
 imageURL: null == imageURL ? _self.imageURL : imageURL // ignore: cast_nullable_to_non_nullable
 as String,confidence: null == confidence ? _self.confidence : confidence // ignore: cast_nullable_to_non_nullable
 as double,index: null == index ? _self.index : index // ignore: cast_nullable_to_non_nullable
-as int,
+as int,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
@@ -82,12 +83,13 @@ as int,
 @JsonSerializable()
 
 class _DetectionHistory implements DetectionHistory {
-  const _DetectionHistory({required this.imageURL, required this.confidence, required this.index});
+  const _DetectionHistory({required this.imageURL, required this.confidence, required this.index, @TimestampConverter() this.createdAt});
   factory _DetectionHistory.fromJson(Map<String, dynamic> json) => _$DetectionHistoryFromJson(json);
 
 @override final  String imageURL;
 @override final  double confidence;
 @override final  int index;
+@override@TimestampConverter() final  DateTime? createdAt;
 
 /// Create a copy of DetectionHistory
 /// with the given fields replaced by the non-null parameter values.
@@ -102,16 +104,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DetectionHistory&&(identical(other.imageURL, imageURL) || other.imageURL == imageURL)&&(identical(other.confidence, confidence) || other.confidence == confidence)&&(identical(other.index, index) || other.index == index));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DetectionHistory&&(identical(other.imageURL, imageURL) || other.imageURL == imageURL)&&(identical(other.confidence, confidence) || other.confidence == confidence)&&(identical(other.index, index) || other.index == index)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,imageURL,confidence,index);
+int get hashCode => Object.hash(runtimeType,imageURL,confidence,index,createdAt);
 
 @override
 String toString() {
-  return 'DetectionHistory(imageURL: $imageURL, confidence: $confidence, index: $index)';
+  return 'DetectionHistory(imageURL: $imageURL, confidence: $confidence, index: $index, createdAt: $createdAt)';
 }
 
 
@@ -122,7 +124,7 @@ abstract mixin class _$DetectionHistoryCopyWith<$Res> implements $DetectionHisto
   factory _$DetectionHistoryCopyWith(_DetectionHistory value, $Res Function(_DetectionHistory) _then) = __$DetectionHistoryCopyWithImpl;
 @override @useResult
 $Res call({
- String imageURL, double confidence, int index
+ String imageURL, double confidence, int index,@TimestampConverter() DateTime? createdAt
 });
 
 
@@ -139,12 +141,13 @@ class __$DetectionHistoryCopyWithImpl<$Res>
 
 /// Create a copy of DetectionHistory
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? imageURL = null,Object? confidence = null,Object? index = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? imageURL = null,Object? confidence = null,Object? index = null,Object? createdAt = freezed,}) {
   return _then(_DetectionHistory(
 imageURL: null == imageURL ? _self.imageURL : imageURL // ignore: cast_nullable_to_non_nullable
 as String,confidence: null == confidence ? _self.confidence : confidence // ignore: cast_nullable_to_non_nullable
 as double,index: null == index ? _self.index : index // ignore: cast_nullable_to_non_nullable
-as int,
+as int,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
