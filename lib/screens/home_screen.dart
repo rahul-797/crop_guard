@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crop_guard/controllers/history_controller.dart';
 import 'package:crop_guard/models/user/user_model.dart';
@@ -17,11 +18,23 @@ BorderRadius splitBorder(int index) {
       : BorderRadius.only(topRight: Radius.circular(16), bottomRight: Radius.circular(16));
 }
 
-class HomeScreen extends StatelessWidget {
-  HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   final historyController = Get.put(HistoryController());
+
   GetStorage box = GetStorage();
+
+  @override
+  void initState() {
+    _loadUserData();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,13 +95,22 @@ class HomeScreen extends StatelessWidget {
                             children: [
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(10),
-                                child: Image.network(
-                                  item.imageURL,
-                                  width: 72, // Increased width
-                                  height: 72, // Increased height
+                                child: CachedNetworkImage(
+                                  imageUrl: item.imageURL,
+                                  placeholder:
+                                      (context, url) => Center(
+                                        child: SizedBox(
+                                          height: 36,
+                                          width: 36,
+                                          child: CircularProgressIndicator(
+                                            strokeCap: StrokeCap.round,
+                                          ),
+                                        ),
+                                      ),
+                                  errorWidget: (context, url, error) => Icon(Icons.error),
+                                  height: 72,
+                                  width: 72,
                                   fit: BoxFit.cover,
-                                  errorBuilder:
-                                      (_, __, ___) => const Icon(Icons.image_not_supported),
                                 ),
                               ),
                               const SizedBox(width: 12),

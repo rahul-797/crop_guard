@@ -8,7 +8,7 @@ class CameraService extends GetxController {
 
   Future<void> initCamera() async {
     cameras = await availableCameras();
-    cameraController = CameraController(cameras[0], ResolutionPreset.ultraHigh);
+    cameraController = Get.put(CameraController(cameras[0], ResolutionPreset.ultraHigh));
     await cameraController!.initialize();
     isInitialized.value = true;
   }

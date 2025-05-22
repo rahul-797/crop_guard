@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crop_guard/controllers/history_controller.dart';
 import 'package:crop_guard/models/user/user_model.dart';
 import 'package:crop_guard/screens/home_screen.dart';
 import 'package:crop_guard/screens/login_screen.dart';
@@ -12,6 +13,7 @@ class LoginService {
   static late User? user;
   final GoogleSignIn googleSignIn = GoogleSignIn();
   GetStorage box = GetStorage();
+  final historyController = Get.find<HistoryController>();
 
   LoginService._privateConstructor();
 
@@ -67,6 +69,7 @@ class LoginService {
 
   logout() async {
     try {
+      historyController.detectionHistory.value = [];
       box.erase();
       await googleSignIn.signOut();
       await auth.signOut();

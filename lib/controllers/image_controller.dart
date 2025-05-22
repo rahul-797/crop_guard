@@ -8,10 +8,12 @@ import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 
 class ImageController extends GetxController {
+  final IMAGE_WIDTH = 1024;
+
   Rx<XFile?> selectedImage = Rx<XFile?>(null);
   RxBool captureDisable = false.obs;
   final cameraService = Get.find<CameraService>();
-  final predictionController = PredictionController();
+  final predictionController = Get.put(PredictionController());
 
   Future<void> pickFromGallery() async {
     predictionController.isLoading.value = true;
@@ -24,7 +26,7 @@ class ImageController extends GetxController {
       final originalImage = img.decodeImage(bytes);
       if (originalImage == null) throw Exception('Could not decode image');
 
-      final resizedImage = img.copyResize(originalImage, width: 2048);
+      final resizedImage = img.copyResize(originalImage, width: IMAGE_WIDTH);
 
       final resizedBytes = img.encodeJpg(resizedImage, quality: 90);
 
@@ -69,7 +71,7 @@ class ImageController extends GetxController {
       final originalImage = img.decodeImage(bytes);
       if (originalImage == null) throw Exception('Could not decode image');
 
-      final resizedImage = img.copyResize(originalImage, width: 2048);
+      final resizedImage = img.copyResize(originalImage, width: IMAGE_WIDTH);
 
       final resizedBytes = img.encodeJpg(resizedImage, quality: 90);
 
