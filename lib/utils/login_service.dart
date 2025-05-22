@@ -58,7 +58,7 @@ class LoginService {
         } catch (e) {
           print(e);
         }
-        Get.offAll(() => const HomeScreen());
+        Get.offAll(() => HomeScreen());
       } catch (e) {
         print(e);
       }

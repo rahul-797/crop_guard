@@ -130,3 +130,7 @@ Map<String, dynamic> getTopLabel(List<double> output) {
   }
   return {'index': maxIdx, 'label': labelList[maxIdx], 'confidence': maxVal};
 }
+
+String getLabelFromIndex(int index) {
+  return labelList[index];
+}

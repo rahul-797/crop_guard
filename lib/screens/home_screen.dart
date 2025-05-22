@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crop_guard/controllers/history_controller.dart';
 import 'package:crop_guard/models/user/user_model.dart';
 import 'package:crop_guard/screens/camera_screen.dart';
 import 'package:crop_guard/screens/profile_screen.dart';
@@ -6,6 +7,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:intl/intl.dart';
+
+import '../utils/preprocess_image.dart';
 
 BorderRadius splitBorder(int index) {
   return index == 0
@@ -13,21 +17,11 @@ BorderRadius splitBorder(int index) {
       : BorderRadius.only(topRight: Radius.circular(16), bottomRight: Radius.circular(16));
 }
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends StatelessWidget {
+  HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
+  final historyController = Get.put(HistoryController());
   GetStorage box = GetStorage();
-
-  @override
-  void initState() {
-    _loadUserData();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +33,109 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(onPressed: () => Get.to(ProfileScreen()), icon: const Icon(Icons.person)),
         ],
       ),
-      body: Placeholder(),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Detection History", style: TextStyle(fontSize: 24)),
+                IconButton(
+                  onPressed: () {
+                    historyController.loadDetectionHistory();
+                  },
+                  icon: Icon(Icons.refresh),
+                ),
+              ],
+            ),
+            Expanded(
+              child: Obx(() {
+                return historyController.isLoading.value
+                    ? Center(child: CircularProgressIndicator())
+                    : ListView.builder(
+                      itemCount: historyController.detectionHistory.value.length,
+                      itemBuilder: (context, index) {
+                        final item = historyController.detectionHistory.value[index];
+                        final label = getLabelFromIndex(item.index);
+                        final confidenceStr = '${(item.confidence * 100).toStringAsFixed(1)}%';
+                        final date = item.createdAt!;
+
+                        return Container(
+                          margin: const EdgeInsets.symmetric(vertical: 6),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 4,
+                                offset: Offset(1, 2),
+                                spreadRadius: 0.1,
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.network(
+                                  item.imageURL,
+                                  width: 72, // Increased width
+                                  height: 72, // Increased height
+                                  fit: BoxFit.cover,
+                                  errorBuilder:
+                                      (_, __, ___) => const Icon(Icons.image_not_supported),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      label,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Confidence: $confidenceStr',
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.calendar_today, size: 14),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          DateFormat('MMM dd, yyyy').format(date),
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.black54,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+              }),
+            ),
+          ],
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Get.to(CameraScreen()),
+        onPressed: () => Get.to(() => CameraScreen()),
         child: Icon(Icons.camera_alt),
       ),
     );
@@ -59,35 +153,3 @@ class _HomeScreenState extends State<HomeScreen> {
     print(user);
   }
 }
-
-/**
-StreamBuilder<QuerySnapshot>(
-                stream:
-                    FirebaseFirestore.instance
-                        .collection('habits')
-                        .where('ownerId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-                        .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  }
-                  final docs = snapshot.data?.docs ?? [];
-                  if (docs.isEmpty) {
-                    return const Center(child: Text('No habits found.'));
-                  }
-                  return ListView.builder(
-                    itemCount: docs.length,
-                    itemBuilder: (context, index) {
-                      final habit = docs[index].data() as Map<String, dynamic>;
-                      return GestureDetector(
-                        onTap: () => {},
-                        child: ListTile(title: Text(habit['title'])),
-                      );
-                    },
-                  );
-                },
-              ),
- **/
