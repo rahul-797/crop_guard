@@ -12,6 +12,11 @@ _AppUser _$AppUserFromJson(Map<String, dynamic> json) => _AppUser(
   email: json['email'] as String,
   photoURL: json['photoURL'] as String?,
   createdAt: const TimestampConverter().fromJson(json['createdAt']),
+  detectionHistory:
+      (json['detectionHistory'] as List<dynamic>?)
+          ?.map((e) => DetectionHistory.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
 );
 
 Map<String, dynamic> _$AppUserToJson(_AppUser instance) => <String, dynamic>{
@@ -23,6 +28,7 @@ Map<String, dynamic> _$AppUserToJson(_AppUser instance) => <String, dynamic>{
     instance.createdAt,
     const TimestampConverter().toJson,
   ),
+  'detectionHistory': instance.detectionHistory,
 };
 
 Json? _$JsonConverterToJson<Json, Value>(
