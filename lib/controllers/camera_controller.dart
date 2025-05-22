@@ -5,7 +5,7 @@ class CameraService extends GetxController {
   CameraController? cameraController;
   late List<CameraDescription> cameras;
 
-  var isInitialized = false.obs;
+  RxBool isInitialized = false.obs;
 
   Future<void> initCamera() async {
     cameras = await availableCameras();
