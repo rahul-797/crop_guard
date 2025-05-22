@@ -4,12 +4,11 @@ import 'package:get/get.dart';
 class CameraService extends GetxController {
   CameraController? cameraController;
   late List<CameraDescription> cameras;
-
   RxBool isInitialized = false.obs;
 
   Future<void> initCamera() async {
     cameras = await availableCameras();
-    cameraController = CameraController(cameras[0], ResolutionPreset.high);
+    cameraController = CameraController(cameras[0], ResolutionPreset.ultraHigh);
     await cameraController!.initialize();
     isInitialized.value = true;
   }

@@ -8,14 +8,9 @@ import '../preprocess_image.dart';
 
 class PredictionController extends GetxController {
   late Interpreter interpreter;
+  RxBool isLoading = false.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    loadModel();
-  }
-
-  void loadModel() async {
+  Future<void> loadModel() async {
     try {
       interpreter = await Interpreter.fromAsset('assets/model.tflite');
       print("Model loaded successfully");
@@ -29,10 +24,12 @@ class PredictionController extends GetxController {
     return labelData.split('\n');
   }
 
-  void predict(File image) async {
+  Future<String> predict(File image) async {
+    await loadModel();
     final output = await runInference(image, interpreter);
     final labels = await loadLabels();
     final prediction = getTopPrediction(output, labels);
     print("Prediction: $prediction");
+    return prediction;
   }
 }

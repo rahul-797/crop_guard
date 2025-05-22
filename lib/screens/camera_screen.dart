@@ -10,16 +10,15 @@ import 'package:get/get.dart';
 class CameraScreen extends StatelessWidget {
   CameraScreen({super.key});
 
-  final CameraService cameraService = Get.find();
-  final imageController = ImageController();
+  final cameraService = Get.find<CameraService>();
+  final imageController = Get.put(ImageController());
   final predictionController = Get.put(PredictionController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Obx(() {
-        if (!cameraService.isInitialized.value) {
-          cameraService.initCamera();
+        if (predictionController.isLoading.value || !cameraService.isInitialized.value) {
           return Center(child: CircularProgressIndicator());
         } else {
           return Stack(
@@ -52,7 +51,10 @@ class CameraScreen extends StatelessWidget {
                                 ),
                       ),
                       GestureDetector(
-                        onTap: imageController.captureImage,
+                        onTap:
+                            imageController.captureDisable.value
+                                ? null
+                                : imageController.captureImage,
                         child: Container(
                           width: 70,
                           height: 70,

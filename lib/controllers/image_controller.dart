@@ -1,24 +1,47 @@
+import 'dart:io';
+
 import 'package:crop_guard/controllers/camera_controller.dart';
+import 'package:crop_guard/controllers/prediction_controller.dart';
+import 'package:crop_guard/screens/prediction_screen.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ImageController extends GetxController {
   Rx<XFile?> selectedImage = Rx<XFile?>(null);
+  RxBool captureDisable = false.obs;
   final cameraService = Get.find<CameraService>();
+  final predictionController = PredictionController();
 
   Future<void> pickFromGallery() async {
+    predictionController.isLoading.value = true;
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
       selectedImage.value = image;
+      String predictedVal = await predictionController.predict(File(image.path));
+      predictionController.isLoading.value = false;
+      Get.to(() => PredictionScreen(image: image, predictedVal: predictedVal));
     }
   }
 
   Future<void> captureImage() async {
-    final XFile? photo = await cameraService.takePicture();
-    if (photo != null) {
-      selectedImage.value = photo;
+    if (captureDisable.value) return;
+    captureDisable.value = true;
+    predictionController.isLoading.value = true;
+
+    try {
+      final XFile? photo = await cameraService.takePicture();
+
+      if (photo != null) {
+        selectedImage.value = photo;
+        String predictedVal = await predictionController.predict(File(photo.path));
+        predictionController.isLoading.value = false;
+        captureDisable.value = false;
+        Get.to(() => PredictionScreen(image: photo, predictedVal: predictedVal));
+      }
+    } finally {
+      captureDisable.value = false;
     }
   }
 }

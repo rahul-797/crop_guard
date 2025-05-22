@@ -15,7 +15,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseAppCheck.instance.activate(androidProvider: AndroidProvider.debug);
-  Get.put(CameraService());
+  Get.put(CameraService()).initCamera();
   runApp(
     GetMaterialApp(
       home: FirebaseAuth.instance.currentUser == null ? LoginScreen() : HomeScreen(),
