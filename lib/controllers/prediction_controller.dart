@@ -24,11 +24,12 @@ class PredictionController extends GetxController {
     return labelData.split('\n');
   }
 
-  Future<String> predict(File image) async {
+  Future<Map<int, String>> predict(File image) async {
     await loadModel();
     final output = await runInference(image, interpreter);
-    final labels = await loadLabels();
-    final prediction = getTopPrediction(output, labels);
+    // final labels = await loadLabels();
+    // final prediction = getTopPrediction(output, labels);
+    final Map<int, String> prediction = getTopLabel(output);
     print("Prediction: $prediction");
     return prediction;
   }

@@ -4,6 +4,48 @@ import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
 
+List<String> labelList = [
+  "Apple Scab",
+  "Apple Black Rot",
+  "Apple Cedar Apple Rust",
+  "Healthy Apple",
+  "Background (No Leaves)",
+  "Healthy Blueberry",
+  "Cherry Powdery Mildew",
+  "Healthy Cherry",
+  "Corn Gray Leaf Spot",
+  "Corn Common Rust",
+  "Corn Northern Leaf Blight",
+  "Healthy Corn",
+  "Grape Black Rot",
+  "Grape Esca (Black Measles)",
+  "Grape Leaf Blight (Isariopsis Leaf Spot)",
+  "Healthy Grape",
+  "Orange Huanglongbing (Citrus Greening)",
+  "Peach Bacterial Spot",
+  "Healthy Peach",
+  "Pepper Bell Bacterial Spot",
+  "Healthy Pepper Bell",
+  "Potato Early Blight",
+  "Potato Late Blight",
+  "Healthy Potato",
+  "Healthy Raspberry",
+  "Healthy Soybean",
+  "Squash Powdery Mildew",
+  "Strawberry Leaf Scorch",
+  "Healthy Strawberry",
+  "Tomato Bacterial Spot",
+  "Tomato Early Blight",
+  "Tomato Late Blight",
+  "Tomato Leaf Mold",
+  "Tomato Septoria Leaf Spot",
+  "Tomato Spider Mites",
+  "Tomato Target Spot",
+  "Tomato Yellow Leaf Curl Virus",
+  "Tomato Mosaic Virus",
+  "Healthy Tomato",
+];
+
 /// Load and preprocess image
 Future<Float32List> preprocessImage(File imageFile) async {
   final rawBytes = await imageFile.readAsBytes();
@@ -74,4 +116,17 @@ String getTopPrediction(List<double> output, List<String> labels) {
   }
 
   return labels[maxIdx];
+}
+
+Map<int, String> getTopLabel(List<double> output) {
+  int maxIdx = 0;
+  double maxVal = output[0];
+
+  for (int i = 1; i < output.length; i++) {
+    if (output[i] > maxVal) {
+      maxVal = output[i];
+      maxIdx = i;
+    }
+  }
+  return <int, String>{maxIdx: labelList[maxIdx]};
 }
