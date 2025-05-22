@@ -4,6 +4,7 @@ import 'package:crop_guard/controllers/camera_controller.dart';
 import 'package:crop_guard/controllers/prediction_controller.dart';
 import 'package:crop_guard/screens/prediction_screen.dart';
 import 'package:get/get.dart';
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 
 class ImageController extends GetxController {
@@ -15,9 +16,26 @@ class ImageController extends GetxController {
   Future<void> pickFromGallery() async {
     predictionController.isLoading.value = true;
     final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    try {
+      XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+      final bytes = await image.readAsBytes();
 
-    if (image != null) {
+      final originalImage = img.decodeImage(bytes);
+      if (originalImage == null) throw Exception('Could not decode image');
+
+      final resizedImage = img.copyResize(originalImage, width: 2048);
+
+      final resizedBytes = img.encodeJpg(resizedImage, quality: 90);
+
+      final tempDir = Directory.systemTemp;
+      final fileName = 'resized_${image.name}';
+      final resizedFile = File('${tempDir.path}/$fileName');
+
+      await resizedFile.writeAsBytes(resizedBytes);
+
+      image = XFile(resizedFile.path);
+
       selectedImage.value = image;
       final Map<String, dynamic> predictedVal = await predictionController.predict(
         File(image.path),
@@ -25,12 +43,15 @@ class ImageController extends GetxController {
       predictionController.isLoading.value = false;
       Get.to(
         () => PredictionScreen(
-          image: image,
+          image: image!,
           predictedIndex: predictedVal['index'],
           predictedText: predictedVal['label'],
           predictedConfidence: predictedVal['confidence'],
         ),
       );
+    } catch (e) {
+      print('Error picking image: $e');
+      return null;
     }
   }
 
@@ -40,25 +61,42 @@ class ImageController extends GetxController {
     predictionController.isLoading.value = true;
 
     try {
-      final XFile? photo = await cameraService.takePicture();
+      XFile? photo = await cameraService.takePicture();
 
-      if (photo != null) {
-        selectedImage.value = photo;
-        final Map<String, dynamic> predictedVal = await predictionController.predict(
-          File(photo.path),
-        );
-        predictionController.isLoading.value = false;
-        captureDisable.value = false;
-        Get.to(
-          () => PredictionScreen(
-            image: photo,
-            predictedIndex: predictedVal['index'],
-            predictedText: predictedVal['label'],
-            predictedConfidence: predictedVal['confidence'],
-          ),
-        );
-      }
+      if (photo == null) return;
+      final bytes = await photo.readAsBytes();
+
+      final originalImage = img.decodeImage(bytes);
+      if (originalImage == null) throw Exception('Could not decode image');
+
+      final resizedImage = img.copyResize(originalImage, width: 2048);
+
+      final resizedBytes = img.encodeJpg(resizedImage, quality: 90);
+
+      final tempDir = Directory.systemTemp;
+      final fileName = 'resized_${photo.name}';
+      final resizedFile = File('${tempDir.path}/$fileName');
+
+      await resizedFile.writeAsBytes(resizedBytes);
+
+      photo = XFile(resizedFile.path);
+
+      selectedImage.value = photo;
+      final Map<String, dynamic> predictedVal = await predictionController.predict(
+        File(photo.path),
+      );
+      predictionController.isLoading.value = false;
+      captureDisable.value = false;
+      Get.to(
+        () => PredictionScreen(
+          image: photo!,
+          predictedIndex: predictedVal['index'],
+          predictedText: predictedVal['label'],
+          predictedConfidence: predictedVal['confidence'],
+        ),
+      );
     } finally {
+      predictionController.isLoading.value = false;
       captureDisable.value = false;
     }
   }
