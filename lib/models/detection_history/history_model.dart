@@ -11,7 +11,7 @@ abstract class DetectionHistory with _$DetectionHistory {
     required String imageURL,
     required double confidence,
     required int index,
-    @TimestampConverter() DateTime? createdAt,
+    @TimestampConverter() required DateTime? createdAt,
   }) = _DetectionHistory;
 
   factory DetectionHistory.fromJson(Map<String, dynamic> json) => _$DetectionHistoryFromJson(json);

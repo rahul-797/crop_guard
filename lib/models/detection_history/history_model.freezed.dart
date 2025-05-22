@@ -83,7 +83,7 @@ as DateTime?,
 @JsonSerializable()
 
 class _DetectionHistory implements DetectionHistory {
-  const _DetectionHistory({required this.imageURL, required this.confidence, required this.index, @TimestampConverter() this.createdAt});
+  const _DetectionHistory({required this.imageURL, required this.confidence, required this.index, @TimestampConverter() required this.createdAt});
   factory _DetectionHistory.fromJson(Map<String, dynamic> json) => _$DetectionHistoryFromJson(json);
 
 @override final  String imageURL;
