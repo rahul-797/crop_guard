@@ -19,13 +19,16 @@ class ImageController extends GetxController {
 
     if (image != null) {
       selectedImage.value = image;
-      final Map<int, String> predictedVal = await predictionController.predict(File(image.path));
+      final Map<String, dynamic> predictedVal = await predictionController.predict(
+        File(image.path),
+      );
       predictionController.isLoading.value = false;
       Get.to(
         () => PredictionScreen(
           image: image,
-          predictedIndex: predictedVal.keys.first,
-          predictedText: predictedVal.values.first,
+          predictedIndex: predictedVal['index'],
+          predictedText: predictedVal['label'],
+          predictedConfidence: predictedVal['confidence'],
         ),
       );
     }
@@ -41,14 +44,17 @@ class ImageController extends GetxController {
 
       if (photo != null) {
         selectedImage.value = photo;
-        final Map<int, String> predictedVal = await predictionController.predict(File(photo.path));
+        final Map<String, dynamic> predictedVal = await predictionController.predict(
+          File(photo.path),
+        );
         predictionController.isLoading.value = false;
         captureDisable.value = false;
         Get.to(
           () => PredictionScreen(
             image: photo,
-            predictedIndex: predictedVal.keys.first,
-            predictedText: predictedVal.values.first,
+            predictedIndex: predictedVal['index'],
+            predictedText: predictedVal['label'],
+            predictedConfidence: predictedVal['confidence'],
           ),
         );
       }

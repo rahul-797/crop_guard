@@ -2,16 +2,19 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class PredictionScreen extends StatefulWidget {
   final XFile image;
   final int predictedIndex;
+  final double predictedConfidence;
   final String predictedText;
   const PredictionScreen({
     super.key,
     required this.image,
     required this.predictedIndex,
     required this.predictedText,
+    required this.predictedConfidence,
   });
 
   @override
@@ -19,43 +22,11 @@ class PredictionScreen extends StatefulWidget {
 }
 
 class _PredictionScreenState extends State<PredictionScreen> {
-  /*
   @override
-  Widget build(BuildContext context) {
-    return PopScope(
-      canPop: true,
-      onPopInvokedWithResult: (context, result) {},
-      child: Scaffold(
-        body: Stack(
-          children: [
-            Padding(
-              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-              child: Image.file(
-                File(widget.image.path),
-                width: Get.width,
-                height: Get.height * 0.3,
-                fit: BoxFit.cover,
-              ),
-            ),
-            SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.white, size: 28),
-                  onPressed: () => Get.back(),
-                ),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [Text(widget.predictedVal)],
-            ),
-          ],
-        ),
-      ),
-    );
+  void initState() {
+    super.initState();
   }
-   */
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,7 +34,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
         slivers: [
           SliverAppBar(
             pinned: true,
-            expandedHeight: MediaQuery.of(context).size.height * 0.35,
+            expandedHeight: Get.height * 0.35,
             collapsedHeight: kToolbarHeight,
             centerTitle: true,
             leading: SafeArea(
@@ -73,7 +44,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
                   backgroundColor: Colors.black45,
                   child: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Get.back(),
                   ),
                 ),
               ),
@@ -96,6 +67,11 @@ class _PredictionScreenState extends State<PredictionScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(widget.predictedText, style: Theme.of(context).textTheme.headlineSmall),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Confidence: ${widget.predictedConfidence.toStringAsFixed(3)}",
+                    style: TextStyle(fontSize: 18),
+                  ),
                   const SizedBox(height: 16),
                   Card(
                     child: Padding(

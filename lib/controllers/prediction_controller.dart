@@ -4,7 +4,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:get/get.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 
-import '../preprocess_image.dart';
+import '../utils/preprocess_image.dart';
 
 class PredictionController extends GetxController {
   late Interpreter interpreter;
@@ -24,12 +24,12 @@ class PredictionController extends GetxController {
     return labelData.split('\n');
   }
 
-  Future<Map<int, String>> predict(File image) async {
+  Future<Map<String, dynamic>> predict(File image) async {
     await loadModel();
     final output = await runInference(image, interpreter);
     // final labels = await loadLabels();
     // final prediction = getTopPrediction(output, labels);
-    final Map<int, String> prediction = getTopLabel(output);
+    final Map<String, dynamic> prediction = getTopLabel(output);
     print("Prediction: $prediction");
     return prediction;
   }

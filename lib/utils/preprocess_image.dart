@@ -96,7 +96,7 @@ Future<List<double>> runInference(File imageFile, Interpreter interpreter) async
   final preprocessed = await preprocessImage(imageFile);
   final input = reshapeInput(preprocessed);
 
-  final outputShape = interpreter.getOutputTensor(0).shape; // e.g. [1, 10]
+  final outputShape = interpreter.getOutputTensor(0).shape;
   final output = List.generate(outputShape[0], (_) => List.filled(outputShape[1], 0.0));
 
   interpreter.run(input, output);
@@ -118,7 +118,7 @@ String getTopPrediction(List<double> output, List<String> labels) {
   return labels[maxIdx];
 }
 
-Map<int, String> getTopLabel(List<double> output) {
+Map<String, dynamic> getTopLabel(List<double> output) {
   int maxIdx = 0;
   double maxVal = output[0];
 
@@ -128,5 +128,5 @@ Map<int, String> getTopLabel(List<double> output) {
       maxIdx = i;
     }
   }
-  return <int, String>{maxIdx: labelList[maxIdx]};
+  return {'index': maxIdx, 'label': labelList[maxIdx], 'confidence': maxVal};
 }

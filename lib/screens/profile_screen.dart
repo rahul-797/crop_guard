@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../login_service.dart';
+import '../utils/login_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
