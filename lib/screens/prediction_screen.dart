@@ -1,8 +1,14 @@
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:uuid/uuid.dart';
+
+import '../models/detection_history/history_model.dart';
 
 class PredictionScreen extends StatefulWidget {
   final XFile image;
@@ -25,6 +31,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
   @override
   void initState() {
     super.initState();
+    _uploadDetection();
   }
 
   @override
@@ -115,6 +122,45 @@ class _PredictionScreenState extends State<PredictionScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<String> uploadImageToStorage(File imageFile, String userId) async {
+    try {
+      final String fileName = const Uuid().v4();
+      final storageRef = FirebaseStorage.instance.ref().child(
+        'users/$userId/detections/$fileName.jpg',
+      );
+      final uploadTask = await storageRef.putFile(imageFile);
+      final downloadUrl = await uploadTask.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading image: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> addDetectionHistory(DetectionHistory newEntry) async {
+    final userDoc = FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid);
+    await userDoc.update({
+      'detectionHistory': FieldValue.arrayUnion([newEntry.toJson()]),
+    });
+  }
+
+  void _uploadDetection() async {
+    final url = await uploadImageToStorage(
+      File(widget.image.path),
+      FirebaseAuth.instance.currentUser!.uid,
+    );
+    addDetectionHistory(
+      DetectionHistory(
+        imageURL: url,
+        confidence: widget.predictedConfidence,
+        index: widget.predictedIndex,
+        createdAt: DateTime.now(),
       ),
     );
   }
