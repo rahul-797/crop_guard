@@ -7,7 +7,7 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 List<String> labelList = [
   "Apple Scab",
   "Apple Black Rot",
-  "Apple Cedar Apple Rust",
+  "Cedar Apple Rust",
   "Healthy Apple",
   "Background (No Leaves)",
   "Healthy Blueberry",

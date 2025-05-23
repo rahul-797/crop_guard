@@ -13,7 +13,7 @@ class ImageController extends GetxController {
   Rx<XFile?> selectedImage = Rx<XFile?>(null);
   RxBool captureDisable = false.obs;
   final cameraService = Get.find<CameraService>();
-  final predictionController = Get.put(PredictionController());
+  final predictionController = Get.find<PredictionController>();
 
   Future<void> pickFromGallery() async {
     predictionController.isLoading.value = true;

@@ -7,12 +7,17 @@ import 'package:crop_guard/controllers/prediction_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class CameraScreen extends StatelessWidget {
-  CameraScreen({super.key});
+class CameraScreen extends StatefulWidget {
+  const CameraScreen({super.key});
 
+  @override
+  State<CameraScreen> createState() => _CameraScreenState();
+}
+
+class _CameraScreenState extends State<CameraScreen> {
   final cameraService = Get.find<CameraService>();
   final imageController = Get.put(ImageController());
-  final predictionController = Get.put(PredictionController());
+  final predictionController = Get.find<PredictionController>();
 
   @override
   Widget build(BuildContext context) {

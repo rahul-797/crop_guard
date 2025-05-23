@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/detection_history/history_model.dart';
+import '../utils/plant_data.dart';
 
 class PredictionScreen extends StatefulWidget {
   final XFile image;
@@ -43,7 +44,6 @@ class _PredictionScreenState extends State<PredictionScreen> {
             pinned: true,
             expandedHeight: Get.height * 0.35,
             collapsedHeight: kToolbarHeight,
-            centerTitle: true,
             leading: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(8),
@@ -57,15 +57,40 @@ class _PredictionScreenState extends State<PredictionScreen> {
               ),
             ),
             clipBehavior: Clip.hardEdge,
-            flexibleSpace: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(24),
-                bottomRight: Radius.circular(24),
-              ),
-              child: FlexibleSpaceBar(
-                background: Image.file(File(widget.image.path), fit: BoxFit.cover),
-              ),
+            flexibleSpace: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                final bool isCollapsed =
+                    constraints.maxHeight <= kToolbarHeight + MediaQuery.of(context).padding.top;
+
+                return ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(24),
+                    bottomRight: Radius.circular(24),
+                  ),
+                  child: FlexibleSpaceBar(
+                    collapseMode: CollapseMode.pin,
+                    centerTitle: true,
+                    title:
+                        isCollapsed
+                            ? Text(
+                              widget.predictedText,
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            )
+                            : null,
+                    background: Image.file(File(widget.image.path), fit: BoxFit.cover),
+                  ),
+                );
+              },
             ),
+            // flexibleSpace: ClipRRect(
+            //   borderRadius: const BorderRadius.only(
+            //     bottomLeft: Radius.circular(24),
+            //     bottomRight: Radius.circular(24),
+            //   ),
+            //   child: FlexibleSpaceBar(
+            //     background: Image.file(File(widget.image.path), fit: BoxFit.cover),
+            //   ),
+            // ),
           ),
           SliverToBoxAdapter(
             child: Padding(
@@ -80,43 +105,93 @@ class _PredictionScreenState extends State<PredictionScreen> {
                     style: TextStyle(fontSize: 18),
                   ),
                   const SizedBox(height: 16),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            '🧪 Treatment',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  data[widget.predictedIndex].containsKey('info')
+                      ? Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'ℹ️ Info',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                              SizedBox(height: 8),
+                              Text(data[widget.predictedIndex]['info']!),
+                            ],
                           ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Biological:\nIf the soil is really dry, you may immerse the whole pot in water until it is evenly moist.',
+                        ),
+                      )
+                      : Container(),
+                  data[widget.predictedIndex].containsKey('treatment')
+                      ? Column(
+                        children: [
+                          const SizedBox(height: 12),
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '🧪 Treatment',
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(data[widget.predictedIndex]['treatment']!),
+                                ],
+                              ),
+                            ),
                           ),
                         ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            '🛡️ Prevention Strategies',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Biological:\nIf the soil is really dry, you may immerse the whole pot in water until it is evenly moist.',
+                      )
+                      : Container(),
+                  data[widget.predictedIndex].containsKey('prevention')
+                      ? Column(
+                        children: [
+                          const SizedBox(height: 12),
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '🛡️ Prevention Strategies',
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(data[widget.predictedIndex]['prevention']!),
+                                ],
+                              ),
+                            ),
                           ),
                         ],
-                      ),
-                    ),
-                  ),
+                      )
+                      : Container(),
+                  data[widget.predictedIndex].containsKey('care')
+                      ? Column(
+                        children: [
+                          const SizedBox(height: 12),
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '🌿 Care Tips',
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(data[widget.predictedIndex]['care']!),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                      : Container(),
                 ],
               ),
             ),

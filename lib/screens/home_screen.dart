@@ -26,7 +26,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final historyController = Get.put(HistoryController());
+  final historyController = Get.find<HistoryController>();
 
   GetStorage box = GetStorage();
 
