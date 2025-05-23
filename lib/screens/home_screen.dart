@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crop_guard/controllers/history_controller.dart';
+import 'package:crop_guard/controllers/image_controller.dart';
 import 'package:crop_guard/models/user/user_model.dart';
 import 'package:crop_guard/screens/camera_screen.dart';
+import 'package:crop_guard/screens/prediction_screen.dart';
 import 'package:crop_guard/screens/profile_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +12,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 
+import '../models/detection_history/history_model.dart';
 import '../utils/preprocess_image.dart';
 
 BorderRadius splitBorder(int index) {
@@ -26,7 +29,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final historyController = Get.find<HistoryController>();
+  final historyController = Get.put(HistoryController());
+  final imageController = Get.put(ImageController());
 
   GetStorage box = GetStorage();
 
@@ -43,7 +47,10 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text("Welcome ${FirebaseAuth.instance.currentUser!.displayName!.split(" ").first}"),
         actions: [
-          IconButton(onPressed: () => Get.to(ProfileScreen()), icon: const Icon(Icons.person)),
+          IconButton(
+            onPressed: () => Get.to(() => ProfileScreen()),
+            icon: const Icon(Icons.person),
+          ),
         ],
       ),
       body: Padding(
@@ -55,27 +62,49 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text("Detection History", style: TextStyle(fontSize: 24)),
-                IconButton(
-                  onPressed: () {
-                    historyController.loadDetectionHistory();
-                  },
-                  icon: Icon(Icons.refresh),
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        historyController.deleteDetectionHistory();
+                      },
+                      icon: Icon(Icons.delete_forever),
+                    ),
+                  ],
                 ),
               ],
             ),
             Expanded(
-              child: Obx(() {
-                return historyController.isLoading.value
-                    ? Center(child: CircularProgressIndicator())
-                    : ListView.builder(
-                      itemCount: historyController.detectionHistory.value.length,
-                      itemBuilder: (context, index) {
-                        final item = historyController.detectionHistory.value[index];
-                        final label = getLabelFromIndex(item.index);
-                        final confidenceStr = '${(item.confidence * 100).toStringAsFixed(1)}%';
-                        final date = item.createdAt!;
+              child: StreamBuilder<List<DetectionHistory>>(
+                stream: historyController.detectionHistoryStream(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Text('No detection history found.');
+                  }
 
-                        return Container(
+                  final historyList = snapshot.data!;
+                  return ListView.builder(
+                    itemCount: historyList.length,
+                    itemBuilder: (context, index) {
+                      final history = historyList[index];
+                      return GestureDetector(
+                        onTap: () async {
+                          final image = await imageController.getCachedImageFile(history.imageURL);
+                          Get.to(
+                            () => PredictionScreen(
+                              isUploaded: true,
+                              image: image,
+                              predictedIndex: history.index,
+                              predictedText: getLabelFromIndex(history.index),
+                              predictedConfidence: history.confidence,
+                            ),
+                          );
+                        },
+                        child: Container(
                           margin: const EdgeInsets.symmetric(vertical: 6),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
@@ -96,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(10),
                                 child: CachedNetworkImage(
-                                  imageUrl: item.imageURL,
+                                  imageUrl: history.imageURL,
                                   placeholder:
                                       (context, url) => Center(
                                         child: SizedBox(
@@ -119,14 +148,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      label,
+                                      getLabelFromIndex(history.index),
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
                                       ),
                                     ),
                                     Text(
-                                      'Confidence: $confidenceStr',
+                                      'Confidence: ${history.confidence}',
                                       style: const TextStyle(fontSize: 12),
                                     ),
                                     const SizedBox(height: 8),
@@ -135,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         const Icon(Icons.calendar_today, size: 14),
                                         const SizedBox(width: 4),
                                         Text(
-                                          DateFormat('MMM dd, yyyy').format(date),
+                                          DateFormat('MMM dd, yyyy').format(history.createdAt),
                                           style: const TextStyle(
                                             fontSize: 12,
                                             color: Colors.black54,
@@ -148,10 +177,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ],
                           ),
-                        );
-                      },
-                    );
-              }),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ],
         ),

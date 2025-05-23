@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DetectionHistory {
 
- String get imageURL; double get confidence; int get index;@TimestampConverter() DateTime? get createdAt;
+ String get imageURL; double get confidence; int get index;@TimestampConverter() DateTime get createdAt;
 /// Create a copy of DetectionHistory
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -49,7 +49,7 @@ abstract mixin class $DetectionHistoryCopyWith<$Res>  {
   factory $DetectionHistoryCopyWith(DetectionHistory value, $Res Function(DetectionHistory) _then) = _$DetectionHistoryCopyWithImpl;
 @useResult
 $Res call({
- String imageURL, double confidence, int index,@TimestampConverter() DateTime? createdAt
+ String imageURL, double confidence, int index,@TimestampConverter() DateTime createdAt
 });
 
 
@@ -66,13 +66,13 @@ class _$DetectionHistoryCopyWithImpl<$Res>
 
 /// Create a copy of DetectionHistory
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? imageURL = null,Object? confidence = null,Object? index = null,Object? createdAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? imageURL = null,Object? confidence = null,Object? index = null,Object? createdAt = null,}) {
   return _then(_self.copyWith(
 imageURL: null == imageURL ? _self.imageURL : imageURL // ignore: cast_nullable_to_non_nullable
 as String,confidence: null == confidence ? _self.confidence : confidence // ignore: cast_nullable_to_non_nullable
 as double,index: null == index ? _self.index : index // ignore: cast_nullable_to_non_nullable
-as int,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as int,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
   ));
 }
 
@@ -89,7 +89,7 @@ class _DetectionHistory implements DetectionHistory {
 @override final  String imageURL;
 @override final  double confidence;
 @override final  int index;
-@override@TimestampConverter() final  DateTime? createdAt;
+@override@TimestampConverter() final  DateTime createdAt;
 
 /// Create a copy of DetectionHistory
 /// with the given fields replaced by the non-null parameter values.
@@ -124,7 +124,7 @@ abstract mixin class _$DetectionHistoryCopyWith<$Res> implements $DetectionHisto
   factory _$DetectionHistoryCopyWith(_DetectionHistory value, $Res Function(_DetectionHistory) _then) = __$DetectionHistoryCopyWithImpl;
 @override @useResult
 $Res call({
- String imageURL, double confidence, int index,@TimestampConverter() DateTime? createdAt
+ String imageURL, double confidence, int index,@TimestampConverter() DateTime createdAt
 });
 
 
@@ -141,13 +141,13 @@ class __$DetectionHistoryCopyWithImpl<$Res>
 
 /// Create a copy of DetectionHistory
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? imageURL = null,Object? confidence = null,Object? index = null,Object? createdAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? imageURL = null,Object? confidence = null,Object? index = null,Object? createdAt = null,}) {
   return _then(_DetectionHistory(
 imageURL: null == imageURL ? _self.imageURL : imageURL // ignore: cast_nullable_to_non_nullable
 as String,confidence: null == confidence ? _self.confidence : confidence // ignore: cast_nullable_to_non_nullable
 as double,index: null == index ? _self.index : index // ignore: cast_nullable_to_non_nullable
-as int,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as int,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
   ));
 }
 

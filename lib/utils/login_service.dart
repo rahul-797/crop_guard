@@ -13,7 +13,6 @@ class LoginService {
   static late User? user;
   final GoogleSignIn googleSignIn = GoogleSignIn();
   GetStorage box = GetStorage();
-  final historyController = Get.find<HistoryController>();
 
   LoginService._privateConstructor();
 
@@ -69,6 +68,7 @@ class LoginService {
 
   logout() async {
     try {
+      final historyController = Get.find<HistoryController>();
       historyController.detectionHistory.value = [];
       box.erase();
       await googleSignIn.signOut();

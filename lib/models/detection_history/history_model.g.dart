@@ -19,13 +19,5 @@ Map<String, dynamic> _$DetectionHistoryToJson(_DetectionHistory instance) =>
       'imageURL': instance.imageURL,
       'confidence': instance.confidence,
       'index': instance.index,
-      'createdAt': _$JsonConverterToJson<dynamic, DateTime>(
-        instance.createdAt,
-        const TimestampConverter().toJson,
-      ),
+      'createdAt': const TimestampConverter().toJson(instance.createdAt),
     };
-
-Json? _$JsonConverterToJson<Json, Value>(
-  Value? value,
-  Json? Function(Value value) toJson,
-) => value == null ? null : toJson(value);

@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
-import 'controllers/history_controller.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -19,7 +18,6 @@ void main() async {
   await FirebaseAppCheck.instance.activate(androidProvider: AndroidProvider.debug);
   Get.put(CameraService()).initCamera();
   Get.put(PredictionController());
-  Get.put(HistoryController());
   runApp(
     GetMaterialApp(
       home: FirebaseAuth.instance.currentUser == null ? LoginScreen() : HomeScreen(),

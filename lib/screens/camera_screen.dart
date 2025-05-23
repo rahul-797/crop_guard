@@ -16,7 +16,7 @@ class CameraScreen extends StatefulWidget {
 
 class _CameraScreenState extends State<CameraScreen> {
   final cameraService = Get.find<CameraService>();
-  final imageController = Get.put(ImageController());
+  final imageController = Get.find<ImageController>();
   final predictionController = Get.find<PredictionController>();
 
   @override

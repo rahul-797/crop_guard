@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crop_guard/controllers/history_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -12,12 +12,14 @@ import '../models/detection_history/history_model.dart';
 import '../utils/plant_data.dart';
 
 class PredictionScreen extends StatefulWidget {
-  final XFile image;
+  final bool isUploaded;
+  final File image;
   final int predictedIndex;
   final double predictedConfidence;
   final String predictedText;
   const PredictionScreen({
     super.key,
+    required this.isUploaded,
     required this.image,
     required this.predictedIndex,
     required this.predictedText,
@@ -29,10 +31,14 @@ class PredictionScreen extends StatefulWidget {
 }
 
 class _PredictionScreenState extends State<PredictionScreen> {
+  final historyController = Get.find<HistoryController>();
+
   @override
   void initState() {
     super.initState();
-    _uploadDetection();
+    if (!widget.isUploaded) {
+      _uploadDetection();
+    }
   }
 
   @override
@@ -77,7 +83,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
                               style: TextStyle(fontWeight: FontWeight.bold),
                             )
                             : null,
-                    background: Image.file(File(widget.image.path), fit: BoxFit.cover),
+                    background: Image.file(widget.image, fit: BoxFit.cover),
                   ),
                 );
               },
@@ -201,7 +207,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
     );
   }
 
-  Future<String> uploadImageToStorage(File imageFile, String userId) async {
+  Future<String> _uploadImageToStorage(File imageFile, String userId) async {
     try {
       final String fileName = const Uuid().v4();
       final storageRef = FirebaseStorage.instance.ref().child(
@@ -216,7 +222,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
     }
   }
 
-  Future<void> addDetectionHistory(DetectionHistory newEntry) async {
+  _addDetectionHistory(DetectionHistory newEntry) async {
     final userDoc = FirebaseFirestore.instance
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid);
@@ -225,12 +231,9 @@ class _PredictionScreenState extends State<PredictionScreen> {
     });
   }
 
-  void _uploadDetection() async {
-    final url = await uploadImageToStorage(
-      File(widget.image.path),
-      FirebaseAuth.instance.currentUser!.uid,
-    );
-    addDetectionHistory(
+  _uploadDetection() async {
+    final url = await _uploadImageToStorage(widget.image, FirebaseAuth.instance.currentUser!.uid);
+    await _addDetectionHistory(
       DetectionHistory(
         imageURL: url,
         confidence: widget.predictedConfidence,

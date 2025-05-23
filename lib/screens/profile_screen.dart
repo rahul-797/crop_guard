@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -66,16 +67,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               },
               child: Text("logout"),
             ),
-            GestureDetector(
-              onTap: _pickAndUploadImage,
-              child: CircleAvatar(
-                radius: 60,
-                backgroundColor: Colors.grey[300],
-                backgroundImage: photoURL != null ? NetworkImage(photoURL!) : null,
-                child:
-                    photoURL == null ? Icon(Icons.person, size: 60, color: Colors.grey[700]) : null,
-              ),
-            ),
+            photoURL != null
+                ? CachedNetworkImage(imageUrl: photoURL!)
+                : Icon(Icons.person, size: 56),
             SizedBox(height: 20),
             Text("Tap to change profile picture", style: TextStyle(color: Colors.grey[600])),
           ],

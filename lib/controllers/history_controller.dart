@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 
 import '../models/detection_history/history_model.dart';
@@ -8,13 +9,8 @@ class HistoryController extends GetxController {
   Rx<List<DetectionHistory>> detectionHistory = Rx<List<DetectionHistory>>([]);
   RxBool isLoading = true.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    loadDetectionHistory();
-  }
-
   loadDetectionHistory() async {
+    print("PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPloadDetectionHistory");
     isLoading.value = true;
     final docRef = FirebaseFirestore.instance
         .collection('users')
@@ -35,5 +31,37 @@ class HistoryController extends GetxController {
       print(detectionHistory.value);
       isLoading.value = false;
     }
+  }
+
+  deleteDetectionHistory() async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final storageRef = FirebaseStorage.instance.ref().child('users/$userId/detections/');
+    final ListResult result = await storageRef.listAll();
+    print(result.items);
+    for (var item in result.items) {
+      await item.delete();
+    }
+
+    await FirebaseFirestore.instance.collection('users').doc(userId).update({
+      'detectionHistory': [],
+    });
+  }
+
+  Stream<List<DetectionHistory>> detectionHistoryStream() {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final docRef = FirebaseFirestore.instance.collection('users').doc(uid);
+
+    return docRef.snapshots().map((snapshot) {
+      if (!snapshot.exists) return [];
+
+      final data = snapshot.data();
+      final historyList = data?['detectionHistory'] as List<dynamic>?;
+
+      if (historyList == null) return [];
+
+      return historyList
+          .map((entry) => DetectionHistory.fromJson(Map<String, dynamic>.from(entry)))
+          .toList();
+    });
   }
 }
