@@ -7,19 +7,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-class LoginService {
+class LoginController extends GetxController {
   static final FirebaseAuth auth = FirebaseAuth.instance;
   static late User? user;
   final GoogleSignIn googleSignIn = GoogleSignIn();
-
-  LoginService._privateConstructor();
-
-  static final LoginService instance = LoginService._privateConstructor();
+  RxBool isLoading = RxBool(false);
 
   login() async {
     final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
 
     if (googleSignInAccount != null) {
+      isLoading.value = true;
       final GoogleSignInAuthentication googleSignInAuthentication =
           await googleSignInAccount.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
@@ -58,6 +56,8 @@ class LoginService {
         Get.offAll(() => HomeScreen());
       } catch (e) {
         print(e);
+      } finally {
+        isLoading.value = false;
       }
     }
   }
@@ -68,7 +68,7 @@ class LoginService {
       historyController.detectionHistory.value = [];
       await googleSignIn.signOut();
       await auth.signOut();
-      Get.offAll(() => const LoginScreen());
+      Get.offAll(() => LoginScreen());
     } catch (e) {
       print(e);
     }

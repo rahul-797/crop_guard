@@ -6,6 +6,7 @@ import 'package:crop_guard/utils/cache.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../utils/login_service.dart';
@@ -18,7 +19,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final LoginService loginService = LoginService.instance;
+  final loginController = Get.find<LoginController>();
   final ImagePicker _picker = ImagePicker();
   final user = FirebaseAuth.instance.currentUser;
 
@@ -140,7 +141,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           actions: [
             ElevatedButton(
               onPressed: () {
-                loginService.logout();
+                loginController.logout();
               },
               style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.redAccent)),
               child: const Text('Yes', style: TextStyle(color: Colors.white)),

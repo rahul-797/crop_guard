@@ -1,6 +1,8 @@
 import 'package:crop_guard/utils/login_service.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+/*
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -20,6 +22,26 @@ class _LoginScreenState extends State<LoginScreen> {
             isLoading
                 ? const Center(child: CircularProgressIndicator(color: Colors.white))
                 : _getContent(),
+      ),
+    );
+  }
+ }
+  */
+class LoginScreen extends StatelessWidget {
+  LoginScreen({super.key});
+
+  final loginController = Get.put(LoginController());
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Obx(
+          () =>
+              loginController.isLoading.value
+                  ? const Center(child: CircularProgressIndicator(color: Colors.green))
+                  : _getContent(),
+        ),
       ),
     );
   }
@@ -50,9 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
         SizedBox(height: 8),
         ElevatedButton.icon(
           onPressed: () {
-            loginService.login();
-            isLoading = true;
-            setState(() {});
+            loginController.login();
           },
           icon: Image.asset('assets/google.png', height: 28, width: 28),
           label: Text('Sign in with Google', style: TextStyle(color: Colors.black87, fontSize: 18)),
