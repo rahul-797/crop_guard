@@ -35,160 +35,200 @@ class _HomeScreenState extends State<HomeScreen> {
   final historyController = Get.put(HistoryController());
   final imageController = Get.put(ImageController());
   final cameraService = Get.find<CameraService>();
+  late String photoUrl;
 
   GetStorage box = GetStorage();
 
   @override
   void initState() {
-    _loadUserData();
     super.initState();
+    _loadUserData();
   }
 
   @override
   Widget build(BuildContext context) {
+    photoUrl = box.read("photoURL");
+    print(photoUrl);
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text("Welcome ${FirebaseAuth.instance.currentUser!.displayName!.split(" ").first}"),
-        actions: [
-          IconButton(
-            onPressed: () => Get.to(() => ProfileScreen()),
-            icon: const Icon(Icons.person),
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("Detection History", style: TextStyle(fontSize: 24)),
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        historyController.deleteDetectionHistory();
-                      },
-                      icon: Icon(Icons.delete_forever),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            Expanded(
-              child: StreamBuilder<List<DetectionHistory>>(
-                stream: historyController.detectionHistoryStream(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Text('No detection history found.');
-                  }
-
-                  final historyList = snapshot.data!;
-                  return ListView.builder(
-                    itemCount: historyList.length,
-                    itemBuilder: (context, index) {
-                      final history = historyList[index];
-                      return GestureDetector(
-                        onTap: () async {
-                          final image = await getCachedImageFile(history.imageURL);
-                          Get.to(
-                            () => PredictionScreen(
-                              isUploaded: true,
-                              image: image,
-                              predictedIndex: history.index,
-                              predictedText: getLabelFromIndex(history.index),
-                              predictedConfidence: history.confidence,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Welcome ${FirebaseAuth.instance.currentUser!.displayName!.split(" ").first}",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      await Get.to(() => ProfileScreen());
+                      setState(() {});
+                    },
+                    icon:
+                        photoUrl == ""
+                            ? Image.asset("assets/profile.png", width: 32)
+                            : CircleAvatar(
+                              radius: 24,
+                              backgroundImage: CachedNetworkImageProvider(photoUrl),
+                              backgroundColor: Colors.grey[200],
                             ),
-                          );
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 6),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 4,
-                                offset: Offset(1, 2),
-                                spreadRadius: 0.1,
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: CachedNetworkImage(
-                                  imageUrl: history.imageURL,
-                                  placeholder:
-                                      (context, url) => Center(
-                                        child: SizedBox(
-                                          height: 36,
-                                          width: 36,
-                                          child: CircularProgressIndicator(
-                                            strokeCap: StrokeCap.round,
+                  ),
+                ],
+              ),
+              SizedBox(height: 18),
+              Text("Recent disease detections", style: TextStyle(fontSize: 18)),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: StreamBuilder<List<DetectionHistory>>(
+                    stream: historyController.detectionHistoryStream(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Center(child: Image.asset("assets/emptyBox.png", height: 100)),
+                            Text("No data found."),
+                          ],
+                        );
+                      }
+                      final historyList = snapshot.data!;
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: historyList.length,
+                              itemBuilder: (context, index) {
+                                final history = historyList[index];
+                                return GestureDetector(
+                                  onTap: () async {
+                                    final image = await getCachedImageFile(history.imageURL);
+                                    Get.to(
+                                      () => PredictionScreen(
+                                        isUploaded: true,
+                                        image: image,
+                                        predictedIndex: history.index,
+                                        predictedText: getLabelFromIndex(history.index),
+                                        predictedConfidence: history.confidence,
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(vertical: 6),
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black12,
+                                          blurRadius: 4,
+                                          offset: Offset(1, 2),
+                                          spreadRadius: 0.1,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(10),
+                                          child: CachedNetworkImage(
+                                            imageUrl: history.imageURL,
+                                            placeholder:
+                                                (context, url) => Center(
+                                                  child: SizedBox(
+                                                    height: 36,
+                                                    width: 36,
+                                                    child: CircularProgressIndicator(
+                                                      strokeCap: StrokeCap.round,
+                                                    ),
+                                                  ),
+                                                ),
+                                            errorWidget: (context, url, error) => Icon(Icons.error),
+                                            height: 72,
+                                            width: 72,
+                                            fit: BoxFit.cover,
                                           ),
                                         ),
-                                      ),
-                                  errorWidget: (context, url, error) => Icon(Icons.error),
-                                  height: 72,
-                                  width: 72,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      getLabelFromIndex(history.index),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Confidence: ${history.confidence}',
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Row(
-                                      children: [
-                                        const Icon(Icons.calendar_today, size: 14),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          DateFormat('MMM dd, yyyy').format(history.createdAt),
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.black54,
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                getLabelFromIndex(history.index),
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                              Text(
+                                                'Confidence: ${(history.confidence * 100).toStringAsFixed(0)}%',
+                                                style: const TextStyle(fontSize: 12),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Row(
+                                                children: [
+                                                  const Icon(Icons.calendar_today, size: 14),
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    DateFormat(
+                                                      'MMM dd, yyyy',
+                                                    ).format(history.createdAt),
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.black54,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                        ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 12),
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                historyController.deleteDetectionHistory();
+                              },
+                              icon: Icon(Icons.delete, color: Colors.white),
+                              label: Text("Delete history"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red, // red background
+                                foregroundColor: Colors.white, // white text
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              ),
+                            ),
+                          ),
+                        ],
                       );
                     },
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(

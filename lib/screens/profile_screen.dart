@@ -27,13 +27,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool isLoading = false;
 
   @override
-  void initState() {
-    photoURL = box.read("photoURL");
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    photoURL = box.read("photoURL");
     return Scaffold(
       appBar: AppBar(
         title: Text("Profile", style: TextStyle(fontWeight: FontWeight.bold)),
@@ -54,13 +49,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               photoURL != ""
-                  ? !isLoading
-                      ? CircleAvatar(
+                  ? isLoading
+                      ? Center(child: CircularProgressIndicator())
+                      : CircleAvatar(
                         radius: 80,
                         backgroundImage: CachedNetworkImageProvider(photoURL),
                         backgroundColor: Colors.grey[200],
                       )
-                      : Center(child: CircularProgressIndicator())
                   : Image.asset("assets/profile.png", height: 100),
               SizedBox(height: 20),
               ElevatedButton(
@@ -79,7 +74,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red, // red background
                   foregroundColor: Colors.white, // white text
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
               ),
@@ -94,6 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile == null) return;
     setState(() {
+      box.write("photoURL", "asdf");
       isLoading = true;
     });
     final File file = File(pickedFile.path);
