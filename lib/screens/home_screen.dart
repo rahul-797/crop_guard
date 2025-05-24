@@ -15,6 +15,7 @@ import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../models/detection_history/history_model.dart';
+import '../utils/cache.dart';
 import '../utils/preprocess_image.dart';
 
 BorderRadius splitBorder(int index) {
@@ -96,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       final history = historyList[index];
                       return GestureDetector(
                         onTap: () async {
-                          final image = await imageController.getCachedImageFile(history.imageURL);
+                          final image = await getCachedImageFile(history.imageURL);
                           Get.to(
                             () => PredictionScreen(
                               isUploaded: true,

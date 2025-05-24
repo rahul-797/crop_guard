@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crop_guard/controllers/history_controller.dart';
+import 'package:crop_guard/utils/cache.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -233,6 +234,8 @@ class _PredictionScreenState extends State<PredictionScreen> {
 
   _uploadDetection() async {
     final url = await _uploadImageToStorage(widget.image, FirebaseAuth.instance.currentUser!.uid);
+    await cacheLocalFileAsNetworkImage(widget.image, url);
+
     await _addDetectionHistory(
       DetectionHistory(
         imageURL: url,

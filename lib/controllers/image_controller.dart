@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:crop_guard/controllers/camera_controller.dart';
 import 'package:crop_guard/controllers/prediction_controller.dart';
 import 'package:crop_guard/screens/prediction_screen.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:get/get.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
@@ -104,19 +103,5 @@ class ImageController extends GetxController {
       predictionController.isLoading.value = false;
       captureDisable.value = false;
     }
-  }
-
-  Future<File> getCachedImageFile(String imageUrl) async {
-    final cacheManager = DefaultCacheManager();
-
-    final fileInfo = await cacheManager.getFileFromCache(imageUrl);
-
-    if (fileInfo != null && fileInfo.file.existsSync()) {
-      print("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCfoundfileincache");
-      return fileInfo.file;
-    }
-    print("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRfiledownloaded");
-    final downloadedFile = await cacheManager.getSingleFile(imageUrl);
-    return downloadedFile;
   }
 }
