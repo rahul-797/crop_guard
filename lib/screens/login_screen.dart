@@ -15,7 +15,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Crop Guard", style: TextStyle(fontSize: 24))),
       body: SafeArea(
         child:
             isLoading
@@ -27,40 +26,46 @@ class _LoginScreenState extends State<LoginScreen> {
 
   _getContent() {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const SizedBox(height: 24.0),
-        const SizedBox(height: 8.0),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            FlutterLogo(size: 128),
-            Padding(padding: const EdgeInsets.all(16), child: _getLoginButtons()),
-          ],
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Image.asset("assets/icon.png", width: 164),
+              SizedBox(height: 24),
+              Text("Welcome to CropGuard", style: TextStyle(fontSize: 24)),
+            ],
+          ),
         ),
+        Padding(padding: const EdgeInsets.all(32), child: _getLoginButtons()),
       ],
     );
   }
 
   _getLoginButtons() {
-    return OutlinedButton(
-      style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: Colors.white),
-        padding: const EdgeInsets.all(16),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FlutterLogo(size: 12),
-          const SizedBox(width: 12),
-          const Text('Sign in with Google', style: TextStyle(fontSize: 18, color: Colors.white)),
-        ],
-      ),
-      onPressed: () {
-        loginService.login();
-        isLoading = true;
-        setState(() {});
-      },
+    return Column(
+      children: [
+        Text("Sign in for better experience"),
+        SizedBox(height: 8),
+        ElevatedButton.icon(
+          onPressed: () {
+            loginService.login();
+            isLoading = true;
+            setState(() {});
+          },
+          icon: Image.asset('assets/google.png', height: 28, width: 28),
+          label: Text('Sign in with Google', style: TextStyle(color: Colors.black87, fontSize: 18)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            minimumSize: Size(double.infinity, 48),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(48)),
+            elevation: 2,
+            side: BorderSide(color: Colors.grey.shade300),
+          ),
+        ),
+      ],
     );
   }
 }

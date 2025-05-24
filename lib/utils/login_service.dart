@@ -5,14 +5,12 @@ import 'package:crop_guard/screens/home_screen.dart';
 import 'package:crop_guard/screens/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginService {
   static final FirebaseAuth auth = FirebaseAuth.instance;
   static late User? user;
   final GoogleSignIn googleSignIn = GoogleSignIn();
-  GetStorage box = GetStorage();
 
   LoginService._privateConstructor();
 
@@ -48,15 +46,10 @@ class LoginService {
               .get()
               .then((docSnapshot) async {
                 if (!docSnapshot.exists) {
-                  box.write("photoURL", "");
-                  box.write("userId", FirebaseAuth.instance.currentUser!.uid);
                   await FirebaseFirestore.instance
                       .collection('users')
                       .doc(FirebaseAuth.instance.currentUser!.uid)
                       .set(user.toJson());
-                } else {
-                  box.write("userId", FirebaseAuth.instance.currentUser!.uid);
-                  box.write("photoURL", docSnapshot.data()?["photoURL"] ?? "");
                 }
               });
         } catch (e) {
@@ -73,7 +66,6 @@ class LoginService {
     try {
       final historyController = Get.find<HistoryController>();
       historyController.detectionHistory.value = [];
-      box.erase();
       await googleSignIn.signOut();
       await auth.signOut();
       Get.offAll(() => const LoginScreen());

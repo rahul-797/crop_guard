@@ -3,7 +3,7 @@
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
     <application
-        android:label="crop_guard"
+        android:label="Crop Guard"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity

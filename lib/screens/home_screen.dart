@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crop_guard/controllers/camera_controller.dart';
 import 'package:crop_guard/controllers/history_controller.dart';
 import 'package:crop_guard/controllers/image_controller.dart';
@@ -8,7 +9,6 @@ import 'package:crop_guard/screens/profile_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -33,14 +33,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final historyController = Get.put(HistoryController());
   final imageController = Get.put(ImageController());
   final cameraService = Get.find<CameraService>();
-  late String photoUrl;
-
-  GetStorage box = GetStorage();
 
   @override
   Widget build(BuildContext context) {
-    photoUrl = box.read("photoURL");
-    print(photoUrl);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -57,19 +52,38 @@ class _HomeScreenState extends State<HomeScreen> {
                     "Welcome ${FirebaseAuth.instance.currentUser!.displayName!.split(" ").first}",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                   ),
-                  IconButton(
-                    onPressed: () async {
-                      await Get.to(() => ProfileScreen());
-                      setState(() {});
-                    },
-                    icon:
-                        photoUrl == ""
-                            ? Image.asset("assets/profile.png", width: 32)
-                            : CircleAvatar(
-                              radius: 24,
-                              backgroundImage: CachedNetworkImageProvider(photoUrl),
-                              backgroundColor: Colors.grey[200],
-                            ),
+                  GestureDetector(
+                    onTap: () => Get.to(() => ProfileScreen()),
+                    child: SizedBox(
+                      height: 48,
+                      width: 48,
+                      child: StreamBuilder(
+                        stream:
+                            FirebaseFirestore.instance
+                                .collection("users")
+                                .doc(FirebaseAuth.instance.currentUser!.uid)
+                                .snapshots(),
+                        builder: (query, snapshot) {
+                          if (snapshot.hasError) {
+                            return Center(child: Text('Error: ${snapshot.error}'));
+                          }
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                          String url = "";
+                          if (snapshot.hasData && snapshot.data!.data()!.containsKey('photoURL')) {
+                            url = snapshot.data!.data()!['photoURL'];
+                          }
+                          return url == ""
+                              ? Image.asset("assets/profile.png")
+                              : CircleAvatar(
+                                radius: 24,
+                                backgroundImage: CachedNetworkImageProvider(url),
+                                backgroundColor: Colors.grey[200],
+                              );
+                        },
+                      ),
+                    ),
                   ),
                 ],
               ),
