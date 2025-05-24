@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crop_guard/utils/cache.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final ImagePicker _picker = ImagePicker();
   final user = FirebaseAuth.instance.currentUser;
   GetStorage box = GetStorage();
-  String? photoURL;
+  String photoURL = "";
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -30,52 +32,106 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Profile", style: TextStyle(fontWeight: FontWeight.bold)),
+        actions: [
+          IconButton(
+            onPressed: () {
+              showLogoutConfirmDialog();
+            },
+            icon: Icon(Icons.logout, size: 28),
+          ),
+          SizedBox(width: 12),
+        ],
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 36),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              photoURL != ""
+                  ? !isLoading
+                      ? CircleAvatar(
+                        radius: 80,
+                        backgroundImage: CachedNetworkImageProvider(photoURL),
+                        backgroundColor: Colors.grey[200],
+                      )
+                      : Center(child: CircularProgressIndicator())
+                  : Image.asset("assets/profile.png", height: 100),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  _pickAndUploadImage();
+                },
+                child: Text("Change profile pic"),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: () {
+                  _deleteImage();
+                },
+                icon: Icon(Icons.delete, color: Colors.white),
+                label: Text("Delete Profile Pic"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red, // red background
+                  foregroundColor: Colors.white, // white text
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _pickAndUploadImage() async {
     final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-
     if (pickedFile == null) return;
-
+    setState(() {
+      isLoading = true;
+    });
     final File file = File(pickedFile.path);
-    final ref = FirebaseStorage.instance.ref().child('users').child(user!.uid).child('profile.jpg');
 
+    final ref = FirebaseStorage.instance.ref().child('users').child(user!.uid).child('profile.jpg');
     await ref.putFile(file);
     final url = await ref.getDownloadURL();
+    cacheLocalFileAsNetworkImage(file, url);
+
+    box.write("photoURL", url);
+    setState(() {
+      isLoading = false;
+      photoURL = url;
+    });
 
     await FirebaseFirestore.instance.collection('users').doc(user!.uid).set({
       'photoURL': url,
     }, SetOptions(merge: true));
-
-    box.write("photoURL", url);
-    photoURL = url;
-
-    setState(() {
-      photoURL = url;
-    });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Profile")),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                showLogoutConfirmDialog();
-              },
-              child: Text("logout"),
-            ),
-            photoURL != null
-                ? CachedNetworkImage(imageUrl: photoURL!)
-                : Icon(Icons.person, size: 56),
-            SizedBox(height: 20),
-            Text("Tap to change profile picture", style: TextStyle(color: Colors.grey[600])),
-          ],
-        ),
-      ),
-    );
+  Future<void> _deleteImage() async {
+    try {
+      box.write("photoURL", "");
+      setState(() {
+        photoURL = "";
+      });
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child('users')
+          .child(user!.uid)
+          .child('profile.jpg');
+      await ref.delete();
+      await FirebaseFirestore.instance.collection('users').doc(user!.uid).update({
+        'photoURL': FieldValue.delete(),
+      });
+    } on FirebaseException catch (e) {
+      print('Error deleting profile image: ${e.message}');
+    }
   }
 
   showLogoutConfirmDialog() {

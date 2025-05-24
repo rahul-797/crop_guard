@@ -22,7 +22,7 @@ void main() async {
   runApp(
     GetMaterialApp(
       home: FirebaseAuth.instance.currentUser == null ? LoginScreen() : HomeScreen(),
-      theme: ThemeData(textTheme: GoogleFonts.poppinsTextTheme()),
+      theme: ThemeData(textTheme: GoogleFonts.ubuntuTextTheme()),
       debugShowCheckedModeBanner: false,
     ),
   );
