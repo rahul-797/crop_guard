@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crop_guard/controllers/camera_controller.dart';
 import 'package:crop_guard/controllers/history_controller.dart';
 import 'package:crop_guard/controllers/image_controller.dart';
 import 'package:crop_guard/models/user/user_model.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../models/detection_history/history_model.dart';
 import '../utils/preprocess_image.dart';
@@ -31,6 +33,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final historyController = Get.put(HistoryController());
   final imageController = Get.put(ImageController());
+  final cameraService = Get.find<CameraService>();
 
   GetStorage box = GetStorage();
 
@@ -188,7 +191,29 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Get.to(() => CameraScreen()),
+        onPressed: () async {
+          cameraService.status = await Permission.camera.status;
+          if (!cameraService.isCameraInitialised.value) {
+            await cameraService.initCamera();
+          }
+          if (cameraService.status.isGranted) {
+            Get.to(() => CameraScreen());
+          } else if (cameraService.status.isDenied) {
+            await cameraService.initCamera();
+          } else {
+            Get.defaultDialog(
+              title: 'Permission Required',
+              middleText:
+                  'Camera permission is permanently denied. Please enable it from settings.',
+              textConfirm: 'Open Settings',
+              onConfirm: () {
+                openAppSettings();
+                Get.back();
+              },
+              textCancel: 'Cancel',
+            );
+          }
+        },
         child: Icon(Icons.camera_alt),
       ),
     );

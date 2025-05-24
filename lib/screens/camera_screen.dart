@@ -23,7 +23,7 @@ class _CameraScreenState extends State<CameraScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Obx(() {
-        if (predictionController.isLoading.value || !cameraService.isInitialized.value) {
+        if (predictionController.isLoading.value) {
           return Center(child: CircularProgressIndicator());
         } else {
           return Stack(
