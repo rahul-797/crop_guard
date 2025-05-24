@@ -1,9 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crop_guard/controllers/camera_controller.dart';
 import 'package:crop_guard/controllers/history_controller.dart';
 import 'package:crop_guard/controllers/image_controller.dart';
-import 'package:crop_guard/models/user/user_model.dart';
 import 'package:crop_guard/screens/camera_screen.dart';
 import 'package:crop_guard/screens/prediction_screen.dart';
 import 'package:crop_guard/screens/profile_screen.dart';
@@ -40,12 +38,6 @@ class _HomeScreenState extends State<HomeScreen> {
   GetStorage box = GetStorage();
 
   @override
-  void initState() {
-    super.initState();
-    _loadUserData();
-  }
-
-  @override
   Widget build(BuildContext context) {
     photoUrl = box.read("photoURL");
     print(photoUrl);
@@ -59,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     "Welcome ${FirebaseAuth.instance.currentUser!.displayName!.split(" ").first}",
@@ -258,17 +251,5 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Icon(Icons.camera_alt),
       ),
     );
-  }
-
-  Future<void> _loadUserData() async {
-    final doc =
-        await FirebaseFirestore.instance
-            .collection("users")
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .get();
-    AppUser user = AppUser.fromJson(doc.data()!);
-    box.write("userId", user.userId);
-    box.write("photoURL", user.photoURL);
-    print(user);
   }
 }

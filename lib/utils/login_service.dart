@@ -39,23 +39,26 @@ class LoginService {
             displayName: FirebaseAuth.instance.currentUser!.displayName ?? '',
             email: FirebaseAuth.instance.currentUser!.email ?? '',
             createdAt: DateTime.now(),
+            photoURL: "",
           );
 
-          FirebaseFirestore.instance
+          await FirebaseFirestore.instance
               .collection('users')
               .doc(FirebaseAuth.instance.currentUser!.uid)
               .get()
-              .then(
-                (docSnapshot) => {
-                  if (!docSnapshot.exists)
-                    {
-                      FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(FirebaseAuth.instance.currentUser!.uid)
-                          .set(user.toJson()),
-                    },
-                },
-              );
+              .then((docSnapshot) async {
+                if (!docSnapshot.exists) {
+                  box.write("photoURL", "");
+                  box.write("userId", FirebaseAuth.instance.currentUser!.uid);
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(FirebaseAuth.instance.currentUser!.uid)
+                      .set(user.toJson());
+                } else {
+                  box.write("userId", FirebaseAuth.instance.currentUser!.uid);
+                  box.write("photoURL", docSnapshot.data()?["photoURL"] ?? "");
+                }
+              });
         } catch (e) {
           print(e);
         }

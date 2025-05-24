@@ -65,17 +65,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Text("Change profile pic"),
               ),
               SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: () {
-                  _deleteImage();
-                },
-                icon: Icon(Icons.delete, color: Colors.white),
-                label: Text("Delete Profile Pic"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red, // red background
-                  foregroundColor: Colors.white, // white text
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              Visibility(
+                visible: photoURL != "",
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    _deleteImage();
+                  },
+                  icon: Icon(Icons.delete, color: Colors.white),
+                  label: Text("Delete Profile Pic"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red, // red background
+                    foregroundColor: Colors.white, // white text
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
                 ),
               ),
             ],
