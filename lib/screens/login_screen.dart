@@ -2,35 +2,10 @@ import 'package:crop_guard/utils/login_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-/*
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
-
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final LoginService loginService = LoginService.instance;
-  bool isLoading = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child:
-            isLoading
-                ? const Center(child: CircularProgressIndicator(color: Colors.green))
-                : _getContent(),
-      ),
-    );
-  }
- }
-  */
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
 
-  final loginController = Get.put(LoginController());
+  final loginController = Get.find<LoginController>();
 
   @override
   Widget build(BuildContext context) {
