@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crop_guard/controllers/camera_controller.dart';
 import 'package:crop_guard/controllers/history_controller.dart';
@@ -68,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             return Center(child: Text('Error: ${snapshot.error}'));
                           }
                           if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Center(child: CircularProgressIndicator());
+                            return Center(child: CircularProgressIndicator(color: Colors.green));
                           }
                           String url = "";
                           if (snapshot.hasData && snapshot.data!.data()!.containsKey('photoURL')) {
@@ -96,14 +97,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     stream: historyController.detectionHistoryStream(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
+                        return CircularProgressIndicator(color: Colors.green);
                       } else if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Center(child: Image.asset("assets/emptyBox.png", height: 100)),
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 48, bottom: 16),
+                                child: Image.asset("assets/emptyBox.png", height: 100),
+                              ),
+                            ),
                             Text("No data found."),
                           ],
                         );
@@ -159,6 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     width: 36,
                                                     child: CircularProgressIndicator(
                                                       strokeCap: StrokeCap.round,
+                                                      color: Colors.green,
                                                     ),
                                                   ),
                                                 ),
@@ -241,29 +248,73 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           cameraService.status = await Permission.camera.status;
-          if (!cameraService.isCameraInitialised.value) {
-            await cameraService.initCamera();
+          print(cameraService.status);
+          print("aaaaaaaaaaaaaaaa");
+          if (!cameraService.status.isGranted) {
+            cameraService.status = await Permission.camera.request();
           }
-          if (cameraService.status.isGranted) {
+          if (cameraService.status.isGranted && cameraService.isCameraInitialised.value) {
             Get.to(() => CameraScreen());
-          } else if (cameraService.status.isDenied) {
-            await cameraService.initCamera();
+          } else if (!cameraService.isCameraInitialised.value) {
+            if (cameraService.status.isGranted) {
+              print("bbbbbbbbbbbbbbbbbbbbbb");
+              cameraService.cameras = await availableCameras();
+              cameraService.cameraController = Get.put(
+                CameraController(
+                  cameraService.cameras[0],
+                  ResolutionPreset.ultraHigh,
+                  enableAudio: false,
+                ),
+              );
+              await cameraService.cameraController!.initialize();
+              cameraService.isCameraInitialised.value = true;
+              Get.to(() => CameraScreen());
+            } else {
+              print("ddddddddddddddddddddddddddddd");
+              showPermissionDialog();
+              return;
+            }
           } else {
-            Get.defaultDialog(
-              title: 'Permission Required',
-              middleText:
-                  'Camera permission is permanently denied. Please enable it from settings.',
-              textConfirm: 'Open Settings',
-              onConfirm: () {
-                openAppSettings();
-                Get.back();
-              },
-              textCancel: 'Cancel',
-            );
+            print("eeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+            showPermissionDialog();
           }
         },
         child: Icon(Icons.camera_alt),
       ),
+    );
+  }
+
+  showPermissionDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext ctx) {
+        return AlertDialog(
+          title: const Text('Permission required'),
+          content: const Text(
+            "To capture and analyze images, this app requires access to your camera.",
+          ),
+          actions: [
+            GestureDetector(
+              onTap: () => Get.back(),
+              child: Text(
+                "Cancel",
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54),
+              ),
+            ),
+            const SizedBox(width: 2),
+            GestureDetector(
+              onTap: () {
+                openAppSettings();
+                Get.back();
+              },
+              child: Text(
+                "Settings",
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

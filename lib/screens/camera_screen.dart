@@ -24,7 +24,7 @@ class _CameraScreenState extends State<CameraScreen> {
     return Scaffold(
       body: Obx(() {
         if (predictionController.isLoading.value) {
-          return Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator(color: Colors.green));
         } else {
           return Stack(
             children: [

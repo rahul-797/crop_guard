@@ -20,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child:
             isLoading
-                ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                ? const Center(child: CircularProgressIndicator(color: Colors.green))
                 : _getContent(),
       ),
     );

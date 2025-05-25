@@ -52,7 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 return Center(child: Text('Error: ${snapshot.error}'));
               }
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return Center(child: CircularProgressIndicator(color: Colors.green));
               }
               String url = "";
               if (snapshot.hasData && snapshot.data!.data()!.containsKey('photoURL')) {
@@ -137,24 +137,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (BuildContext ctx) {
         return AlertDialog(
           title: const Text('Confirmation'),
-          content: const Text('Logout from this account?'),
+          content: const Text('Your data is safe.\nLogout from this account?'),
           actions: [
-            ElevatedButton(
-              onPressed: () {
-                loginController.logout();
-              },
-              style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.redAccent)),
-              child: const Text('Yes', style: TextStyle(color: Colors.white)),
-            ),
-            const SizedBox(width: 6),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.grey.shade400)),
-              child: const Text('No', style: TextStyle(color: Colors.black87)),
+            GestureDetector(
+              onTap: () => Get.back(),
+              child: Text(
+                "Cancel",
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54),
+              ),
             ),
             const SizedBox(width: 2),
+            GestureDetector(
+              onTap: () {
+                loginController.logout();
+              },
+              child: Text(
+                "Logout",
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+              ),
+            ),
           ],
         );
       },

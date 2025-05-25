@@ -53,11 +53,10 @@ class LoginController extends GetxController {
         } catch (e) {
           print(e);
         }
+        isLoading.value = false;
         Get.offAll(() => HomeScreen());
       } catch (e) {
         print(e);
-      } finally {
-        isLoading.value = false;
       }
     }
   }
