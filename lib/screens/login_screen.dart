@@ -2,6 +2,8 @@ import 'package:crop_guard/utils/login_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import 'about_screen.dart';
+
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
 
@@ -32,6 +34,27 @@ class LoginScreen extends StatelessWidget {
               Image.asset("assets/icon.png", width: 164),
               SizedBox(height: 24),
               Text("Welcome to CropGuard", style: TextStyle(fontSize: 24)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("About this app", style: TextStyle(fontSize: 16)),
+                  GestureDetector(
+                    onTap: () => Get.to(() => AboutScreen()),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white,
+                        radius: 14,
+                        child: Icon(
+                          Icons.navigate_next,
+                          size: 28,
+                          color: Color.fromARGB(255, 0, 150, 0),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
