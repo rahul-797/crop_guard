@@ -4,6 +4,7 @@ import 'package:crop_guard/models/user/user_model.dart';
 import 'package:crop_guard/screens/home_screen.dart';
 import 'package:crop_guard/screens/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -12,6 +13,51 @@ class LoginController extends GetxController {
   static late User? user;
   final GoogleSignIn googleSignIn = GoogleSignIn();
   RxBool isLoading = RxBool(false);
+
+  anonymousLogin() async {
+    try {
+      isLoading.value = true;
+      UserCredential userCredential = await FirebaseAuth.instance.signInAnonymously();
+      User? user = userCredential.user;
+      print('Signed in anonymously as: ${user?.uid}');
+
+      try {
+        AppUser user = AppUser(
+          userId: FirebaseAuth.instance.currentUser!.uid,
+          displayName: "Anon",
+          email: "",
+          createdAt: DateTime.now(),
+          photoURL: "",
+        );
+
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .set(user.toJson());
+      } catch (e) {
+        print(e);
+      }
+      isLoading.value = false;
+      Get.offAll(() => HomeScreen());
+    } catch (e) {
+      print('Anonymous sign-in failed: $e');
+      isLoading.value = false;
+    }
+  }
+
+  anonymousLogout() async {
+    try {
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+      final historyController = Get.find<HistoryController>();
+      historyController.detectionHistory.value = [];
+      await deleteUserStorage(uid);
+      await FirebaseFirestore.instance.collection("users").doc(uid).delete();
+      await auth.signOut();
+      Get.offAll(() => LoginScreen());
+    } catch (e) {
+      print(e);
+    }
+  }
 
   login() async {
     final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
@@ -56,6 +102,7 @@ class LoginController extends GetxController {
         isLoading.value = false;
         Get.offAll(() => HomeScreen());
       } catch (e) {
+        isLoading.value = false;
         print(e);
       }
     }
@@ -71,5 +118,21 @@ class LoginController extends GetxController {
     } catch (e) {
       print(e);
     }
+  }
+}
+
+deleteUserStorage(String uid) async {
+  try {
+    final profileRef = FirebaseStorage.instance.ref('users/$uid/profile.jpg');
+    await profileRef.delete();
+
+    final detectionsRef = FirebaseStorage.instance.ref('users/$uid/detections');
+    final ListResult result = await detectionsRef.listAll();
+
+    for (final Reference file in result.items) {
+      await file.delete();
+    }
+  } catch (e) {
+    print('Error deleting user storage: $e');
   }
 }

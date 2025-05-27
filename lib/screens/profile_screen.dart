@@ -55,7 +55,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 return Center(child: CircularProgressIndicator(color: Colors.green));
               }
               String url = "";
-              if (snapshot.hasData && snapshot.data!.data()!.containsKey('photoURL')) {
+              if (snapshot.data != null &&
+                  snapshot.data!.data() != null &&
+                  snapshot.data!.data()!.containsKey('photoURL')) {
                 url = snapshot.data!.data()!['photoURL'];
               }
               return Column(
@@ -149,7 +151,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(width: 2),
             GestureDetector(
               onTap: () {
-                loginController.logout();
+                if (FirebaseAuth.instance.currentUser!.isAnonymous) {
+                  loginController.anonymousLogout();
+                } else {
+                  loginController.logout();
+                }
               },
               child: Text(
                 "Logout",

@@ -18,7 +18,6 @@ class HistoryController extends GetxController {
     final storageRef = FirebaseStorage.instance.ref().child('users/$userId/detections/');
     final ListResult result = await storageRef.listAll();
 
-    print(result.items);
     for (var item in result.items) {
       await item.delete();
     }

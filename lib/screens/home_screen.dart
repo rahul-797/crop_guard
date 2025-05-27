@@ -34,6 +34,15 @@ class _HomeScreenState extends State<HomeScreen> {
   final historyController = Get.put(HistoryController());
   final imageController = Get.put(ImageController());
   final cameraService = Get.find<CameraService>();
+  String name = "Anon";
+
+  @override
+  void initState() {
+    if (!FirebaseAuth.instance.currentUser!.isAnonymous) {
+      name = FirebaseAuth.instance.currentUser!.displayName!.split(" ").first;
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "Welcome ${FirebaseAuth.instance.currentUser!.displayName!.split(" ").first}",
+                    "Welcome $name",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                   ),
                   GestureDetector(
@@ -72,7 +81,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             return Center(child: CircularProgressIndicator(color: Colors.green));
                           }
                           String url = "";
-                          if (snapshot.hasData && snapshot.data!.data()!.containsKey('photoURL')) {
+                          if (snapshot.data != null &&
+                              snapshot.data!.data() != null &&
+                              snapshot.data!.data()!.containsKey('photoURL')) {
                             url = snapshot.data!.data()!['photoURL'];
                           }
                           return url == ""
@@ -248,8 +259,6 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           cameraService.status = await Permission.camera.status;
-          print(cameraService.status);
-          print("aaaaaaaaaaaaaaaa");
           if (!cameraService.status.isGranted) {
             cameraService.status = await Permission.camera.request();
           }
@@ -257,7 +266,6 @@ class _HomeScreenState extends State<HomeScreen> {
             Get.to(() => CameraScreen());
           } else if (!cameraService.isCameraInitialised.value) {
             if (cameraService.status.isGranted) {
-              print("bbbbbbbbbbbbbbbbbbbbbb");
               cameraService.cameras = await availableCameras();
               cameraService.cameraController = Get.put(
                 CameraController(
@@ -270,12 +278,10 @@ class _HomeScreenState extends State<HomeScreen> {
               cameraService.isCameraInitialised.value = true;
               Get.to(() => CameraScreen());
             } else {
-              print("ddddddddddddddddddddddddddddd");
               showPermissionDialog();
               return;
             }
           } else {
-            print("eeeeeeeeeeeeeeeeeeeeeeeeeeeee");
             showPermissionDialog();
           }
         },

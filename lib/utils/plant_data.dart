@@ -252,6 +252,15 @@ List<Map<String, String>> data = [
     'prevention':
         'Preventing early blight involves planting resistant or tolerant tomato varieties when available and practicing crop rotation with non-host crops to minimize pathogen buildup in the soil. Sanitation measures such as removing infected debris and volunteer plants reduce overwintering fungal spores. Managing irrigation to avoid prolonged leaf wetness and providing adequate plant spacing improve air circulation, reducing disease risk. Regular monitoring and timely fungicide applications are essential parts of an integrated disease management strategy.',
   },
+  // Tomato Late Blight
+  {
+    'info':
+        'Tomato Late Blight is a devastating disease caused by the oomycete *Phytophthora infestans*, the same pathogen responsible for the Irish potato famine. It primarily affects foliage, stems, and fruit of tomato plants. Symptoms start as irregularly shaped, water-soaked lesions on leaves, which quickly turn brown and may be surrounded by a pale green halo. Under humid conditions, a white, fuzzy fungal growth may be visible on the undersides of affected leaves. Infected fruit develop large, greasy-looking, brown lesions and may rot rapidly. The disease thrives in cool, moist environments and spreads quickly via airborne spores.',
+    'treatment':
+        'Management of tomato late blight involves prompt removal and destruction of infected plants to reduce spread. Fungicides containing active ingredients such as chlorothalonil, mancozeb, or copper-based compounds can provide protection if applied preventively or at the first sign of disease. Systemic fungicides like fluopicolide or cyazofamid may be used in severe outbreaks. It is essential to maintain a regular spray schedule, especially under conducive weather conditions. Sanitation, including removing volunteer plants and solanaceous weeds, is also crucial for effective control.',
+    'prevention':
+        'Preventive strategies include planting resistant tomato varieties when available and avoiding overhead irrigation to limit leaf wetness. Proper plant spacing and staking enhance air circulation, reducing humidity around foliage. Practicing crop rotation and avoiding planting tomatoes near potatoes, which are also susceptible to late blight, helps reduce disease pressure. Monitoring weather conditions and using disease forecasting models can guide timely fungicide applications. Starting the season with certified disease-free transplants and maintaining field hygiene are key components of a successful prevention plan.',
+  },
   // Tomato Leaf Mold
   {
     'info':

@@ -1,1 +1,44 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"crop-guard-707","appId":"1:564773820155:android:6b6b411a79fc7d5731025e","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"crop-guard-707","configurations":{"android":"1:564773820155:android:6b6b411a79fc7d5731025e","ios":"1:564773820155:ios:03ea02df0d0b5bba31025e"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "crop-guard-707",
+          "appId": "1:564773820155:android:6b6b411a79fc7d5731025e",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "crop-guard-707",
+          "configurations": {
+            "android": "1:564773820155:android:6b6b411a79fc7d5731025e",
+            "ios": "1:564773820155:ios:03ea02df0d0b5bba31025e"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "database": "(default)",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "storage": {
+    "rules": "storage.rules"
+  }
+}

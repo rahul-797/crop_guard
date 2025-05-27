@@ -68,6 +68,21 @@ class LoginScreen extends StatelessWidget {
       children: [
         Text("Sign in for better experience"),
         SizedBox(height: 8),
+        ElevatedButton(
+          onPressed: () {
+            loginController.anonymousLogin();
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.black54,
+            foregroundColor: Colors.black,
+            minimumSize: Size(double.infinity, 48),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(48)),
+            elevation: 2,
+            side: BorderSide(color: Colors.black38),
+          ),
+          child: Text("Sign in anonymously", style: TextStyle(color: Colors.white, fontSize: 18)),
+        ),
+        SizedBox(height: 16),
         ElevatedButton.icon(
           onPressed: () {
             loginController.login();
