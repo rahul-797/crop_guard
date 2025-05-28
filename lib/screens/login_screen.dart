@@ -33,7 +33,7 @@ class LoginScreen extends StatelessWidget {
             children: [
               Image.asset("assets/icon.png", width: 164),
               SizedBox(height: 24),
-              Text("Welcome to CropGuard", style: TextStyle(fontSize: 24)),
+              Text("Welcome to Growmie", style: TextStyle(fontSize: 24)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

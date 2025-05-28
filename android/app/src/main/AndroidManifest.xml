@@ -4,7 +4,7 @@
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
     <application
-        android:label="Crop Guard"
+        android:label="Growmie"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity
