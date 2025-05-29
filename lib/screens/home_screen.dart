@@ -302,9 +302,12 @@ class _HomeScreenState extends State<HomeScreen> {
           actions: [
             GestureDetector(
               onTap: () => Get.back(),
-              child: Text(
-                "Cancel",
-                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54),
+                ),
               ),
             ),
             const SizedBox(width: 2),
@@ -313,9 +316,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 openAppSettings();
                 Get.back();
               },
-              child: Text(
-                "Settings",
-                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  "Settings",
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+                ),
               ),
             ),
           ],

@@ -37,8 +37,8 @@ class LoginController extends GetxController {
       } catch (e) {
         print(e);
       }
-      isLoading.value = false;
       Get.offAll(() => HomeScreen());
+      isLoading.value = false;
     } catch (e) {
       print('Anonymous sign-in failed: $e');
       isLoading.value = false;
@@ -50,8 +50,8 @@ class LoginController extends GetxController {
       String uid = FirebaseAuth.instance.currentUser!.uid;
       final historyController = Get.find<HistoryController>();
       historyController.detectionHistory.value = [];
-      await deleteUserStorage(uid);
-      await FirebaseFirestore.instance.collection("users").doc(uid).delete();
+      deleteUserStorage(uid);
+      FirebaseFirestore.instance.collection("users").doc(uid).delete();
       await auth.signOut();
       Get.offAll(() => LoginScreen());
     } catch (e) {
@@ -99,8 +99,8 @@ class LoginController extends GetxController {
         } catch (e) {
           print(e);
         }
-        isLoading.value = false;
         Get.offAll(() => HomeScreen());
+        isLoading.value = false;
       } catch (e) {
         isLoading.value = false;
         print(e);
@@ -124,13 +124,13 @@ class LoginController extends GetxController {
 deleteUserStorage(String uid) async {
   try {
     final profileRef = FirebaseStorage.instance.ref('users/$uid/profile.jpg');
-    await profileRef.delete();
+    profileRef.delete();
 
     final detectionsRef = FirebaseStorage.instance.ref('users/$uid/detections');
     final ListResult result = await detectionsRef.listAll();
 
     for (final Reference file in result.items) {
-      await file.delete();
+      file.delete();
     }
   } catch (e) {
     print('Error deleting user storage: $e');

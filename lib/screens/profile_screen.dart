@@ -22,6 +22,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final loginController = Get.find<LoginController>();
   final ImagePicker _picker = ImagePicker();
   final user = FirebaseAuth.instance.currentUser;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -62,12 +63,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
               }
               return Column(
                 children: [
-                  url == ""
-                      ? Image.asset("assets/profile.png", width: 100)
-                      : CircleAvatar(
-                        radius: 80,
-                        backgroundImage: CachedNetworkImageProvider(url),
-                        backgroundColor: Colors.grey[200],
+                  isLoading
+                      ? SizedBox(
+                        height: 200,
+                        child: Center(child: CircularProgressIndicator(color: Colors.green)),
+                      )
+                      : url == ""
+                      ? SizedBox(height: 200, child: Image.asset("assets/profile.png", width: 100))
+                      : SizedBox(
+                        height: 200,
+                        child: CircleAvatar(
+                          radius: 80,
+                          backgroundImage: CachedNetworkImageProvider(url),
+                          backgroundColor: Colors.grey[200],
+                        ),
                       ),
                   SizedBox(height: 20),
                   ElevatedButton(
@@ -103,10 +112,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _pickAndUploadImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 25,
+    );
     if (pickedFile == null) return;
     final File file = File(pickedFile.path);
 
+    setState(() {
+      isLoading = true;
+    });
     final ref = FirebaseStorage.instance.ref().child('users').child(user!.uid).child('profile.jpg');
     await ref.putFile(file);
     final url = await ref.getDownloadURL();
@@ -115,10 +130,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await FirebaseFirestore.instance.collection('users').doc(user!.uid).set({
       'photoURL': url,
     }, SetOptions(merge: true));
+    setState(() {
+      isLoading = false;
+    });
   }
 
   Future<void> _deleteImage() async {
     try {
+      setState(() {
+        isLoading = true;
+      });
       final ref = FirebaseStorage.instance
           .ref()
           .child('users')
@@ -131,6 +152,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } on FirebaseException catch (e) {
       print('Error deleting profile image: ${e.message}');
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   showLogoutConfirmDialog() {
@@ -143,9 +167,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           actions: [
             GestureDetector(
               onTap: () => Get.back(),
-              child: Text(
-                "Cancel",
-                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54),
+                ),
               ),
             ),
             const SizedBox(width: 2),
@@ -157,9 +184,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   loginController.logout();
                 }
               },
-              child: Text(
-                "Logout",
-                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  "Logout",
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+                ),
               ),
             ),
           ],

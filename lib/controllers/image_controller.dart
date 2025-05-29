@@ -18,7 +18,7 @@ class ImageController extends GetxController {
   Future<void> pickFromGallery() async {
     final ImagePicker picker = ImagePicker();
     try {
-      XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      XFile? image = await picker.pickImage(source: ImageSource.gallery, imageQuality: 25);
       if (image == null) return;
 
       predictionController.isLoading.value = true;
