@@ -15,6 +15,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../models/detection_history/history_model.dart';
 import '../utils/cache.dart';
+import '../utils/login_service.dart';
 import '../utils/preprocess_image.dart';
 
 BorderRadius splitBorder(int index) {
@@ -34,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final historyController = Get.put(HistoryController());
   final imageController = Get.put(ImageController());
   final cameraService = Get.find<CameraService>();
+  final loginController = Get.find<LoginController>();
   String name = "Anon";
 
   @override
@@ -62,41 +64,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     "Welcome $name",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                   ),
-                  GestureDetector(
-                    onTap: () => Get.to(() => ProfileScreen()),
-                    child: SizedBox(
-                      height: 48,
-                      width: 48,
-                      child: StreamBuilder(
-                        stream:
-                            FirebaseFirestore.instance
-                                .collection("users")
-                                .doc(FirebaseAuth.instance.currentUser!.uid)
-                                .snapshots(),
-                        builder: (query, snapshot) {
-                          if (snapshot.hasError) {
-                            return Center(child: Text('Error: ${snapshot.error}'));
-                          }
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Center(child: CircularProgressIndicator(color: Colors.green));
-                          }
-                          String url = "";
-                          if (snapshot.data != null &&
-                              snapshot.data!.data() != null &&
-                              snapshot.data!.data()!.containsKey('photoURL')) {
-                            url = snapshot.data!.data()!['photoURL'];
-                          }
-                          return url == ""
-                              ? Image.asset("assets/profile.png")
-                              : CircleAvatar(
-                                radius: 24,
-                                backgroundImage: CachedNetworkImageProvider(url),
-                                backgroundColor: Colors.grey[200],
-                              );
+                  !FirebaseAuth.instance.currentUser!.isAnonymous
+                      ? profileWidget()
+                      : IconButton(
+                        onPressed: () {
+                          showLogoutConfirmDialog();
                         },
+                        icon: Icon(Icons.logout, size: 28),
                       ),
-                    ),
-                  ),
                 ],
               ),
               SizedBox(height: 18),
@@ -287,6 +262,85 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         child: Icon(Icons.camera_alt),
       ),
+    );
+  }
+
+  profileWidget() {
+    return GestureDetector(
+      onTap: () => Get.to(() => ProfileScreen()),
+      child: SizedBox(
+        height: 48,
+        width: 48,
+        child: StreamBuilder(
+          stream:
+              FirebaseFirestore.instance
+                  .collection("users")
+                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                  .snapshots(),
+          builder: (query, snapshot) {
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator(color: Colors.green));
+            }
+            String url = "";
+            if (snapshot.data != null &&
+                snapshot.data!.data() != null &&
+                snapshot.data!.data()!.containsKey('photoURL')) {
+              url = snapshot.data!.data()!['photoURL'];
+            }
+            return url == ""
+                ? Image.asset("assets/profile.png")
+                : CircleAvatar(
+                  radius: 24,
+                  backgroundImage: CachedNetworkImageProvider(url),
+                  backgroundColor: Colors.grey[200],
+                );
+          },
+        ),
+      ),
+    );
+  }
+
+  showLogoutConfirmDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext ctx) {
+        return AlertDialog(
+          title: const Text('Confirmation'),
+          content: const Text('Your data is safe.\nLogout from this account?'),
+          actions: [
+            GestureDetector(
+              onTap: () => Get.back(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54),
+                ),
+              ),
+            ),
+            const SizedBox(width: 2),
+            GestureDetector(
+              onTap: () {
+                if (FirebaseAuth.instance.currentUser!.isAnonymous) {
+                  loginController.anonymousLogout();
+                } else {
+                  loginController.logout();
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  "Logout",
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
