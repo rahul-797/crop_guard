@@ -76,157 +76,20 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SizedBox(height: 18),
               Text("Recent disease detections", style: TextStyle(fontSize: 18)),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: StreamBuilder<List<DetectionHistory>>(
-                    stream: historyController.detectionHistoryStream(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator(color: Colors.green);
-                      } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Center(
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 48, bottom: 16),
-                                child: Image.asset("assets/emptyBox.png", height: 100),
-                              ),
-                            ),
-                            Text("No data found."),
-                          ],
-                        );
-                      }
-                      final historyList = snapshot.data!;
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
+              !FirebaseAuth.instance.currentUser!.isAnonymous
+                  ? recentWidget()
+                  : Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 36),
+                      child: Column(
                         children: [
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: historyList.length,
-                              itemBuilder: (context, index) {
-                                final history = historyList[index];
-                                return GestureDetector(
-                                  onTap: () async {
-                                    final image = await getCachedImageFile(history.imageURL);
-                                    Get.to(
-                                      () => PredictionScreen(
-                                        isUploaded: true,
-                                        image: image,
-                                        predictedIndex: history.index,
-                                        predictedText: getLabelFromIndex(history.index),
-                                        predictedConfidence: history.confidence,
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    margin: const EdgeInsets.symmetric(vertical: 6),
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black12,
-                                          blurRadius: 4,
-                                          offset: Offset(1, 2),
-                                          spreadRadius: 0.1,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(10),
-                                          child: CachedNetworkImage(
-                                            imageUrl: history.imageURL,
-                                            placeholder:
-                                                (context, url) => Center(
-                                                  child: SizedBox(
-                                                    height: 36,
-                                                    width: 36,
-                                                    child: CircularProgressIndicator(
-                                                      strokeCap: StrokeCap.round,
-                                                      color: Colors.green,
-                                                    ),
-                                                  ),
-                                                ),
-                                            errorWidget: (context, url, error) => Icon(Icons.error),
-                                            height: 72,
-                                            width: 72,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                getLabelFromIndex(history.index),
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                              Text(
-                                                'Confidence: ${(history.confidence * 100).toStringAsFixed(0)}%',
-                                                style: const TextStyle(fontSize: 12),
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Row(
-                                                children: [
-                                                  const Icon(Icons.calendar_today, size: 14),
-                                                  const SizedBox(width: 4),
-                                                  Text(
-                                                    DateFormat(
-                                                      'MMM dd, yyyy',
-                                                    ).format(history.createdAt),
-                                                    style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.black54,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 12),
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                historyController.deleteDetectionHistory();
-                              },
-                              icon: Icon(Icons.delete, color: Colors.white),
-                              label: Text("Delete history"),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red, // red background
-                                foregroundColor: Colors.white, // white text
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(24),
-                                ),
-                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              ),
-                            ),
-                          ),
+                          Image.asset("assets/history.png", width: 48, color: Colors.black54),
+                          SizedBox(height: 4),
+                          Text("To see history login"),
                         ],
-                      );
-                    },
+                      ),
+                    ),
                   ),
-                ),
-              ),
             ],
           ),
         ),
@@ -261,6 +124,156 @@ class _HomeScreenState extends State<HomeScreen> {
           }
         },
         child: Icon(Icons.camera_alt),
+      ),
+    );
+  }
+
+  recentWidget() {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: StreamBuilder<List<DetectionHistory>>(
+          stream: historyController.detectionHistoryStream(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator(color: Colors.green);
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 48, bottom: 16),
+                      child: Image.asset("assets/emptyBox.png", height: 100),
+                    ),
+                  ),
+                  Text("No data found."),
+                ],
+              );
+            }
+            final historyList = snapshot.data!;
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: historyList.length,
+                    itemBuilder: (context, index) {
+                      final history = historyList[index];
+                      return GestureDetector(
+                        onTap: () async {
+                          final image = await getCachedImageFile(history.imageURL);
+                          Get.to(
+                            () => PredictionScreen(
+                              isUploaded: true,
+                              image: image,
+                              predictedIndex: history.index,
+                              predictedText: getLabelFromIndex(history.index),
+                              predictedConfidence: history.confidence,
+                            ),
+                          );
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 6),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 4,
+                                offset: Offset(1, 2),
+                                spreadRadius: 0.1,
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: CachedNetworkImage(
+                                  imageUrl: history.imageURL,
+                                  placeholder:
+                                      (context, url) => Center(
+                                        child: SizedBox(
+                                          height: 36,
+                                          width: 36,
+                                          child: CircularProgressIndicator(
+                                            strokeCap: StrokeCap.round,
+                                            color: Colors.green,
+                                          ),
+                                        ),
+                                      ),
+                                  errorWidget: (context, url, error) => Icon(Icons.error),
+                                  height: 72,
+                                  width: 72,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      getLabelFromIndex(history.index),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Confidence: ${(history.confidence * 100).toStringAsFixed(0)}%',
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.calendar_today, size: 14),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          DateFormat('MMM dd, yyyy').format(history.createdAt),
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.black54,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      historyController.deleteDetectionHistory();
+                    },
+                    icon: Icon(Icons.delete, color: Colors.white),
+                    label: Text("Delete history"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red, // red background
+                      foregroundColor: Colors.white, // white text
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

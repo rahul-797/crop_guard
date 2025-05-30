@@ -38,7 +38,9 @@ class _PredictionScreenState extends State<PredictionScreen> {
   void initState() {
     super.initState();
     if (!widget.isUploaded) {
-      _uploadDetection();
+      if (!FirebaseAuth.instance.currentUser!.isAnonymous) {
+        _uploadDetection();
+      }
     }
   }
 

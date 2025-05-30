@@ -50,6 +50,7 @@ class ImageController extends GetxController {
       );
     } catch (e) {
       print('Error picking image: $e');
+      predictionController.isLoading.value = false;
       return null;
     }
   }

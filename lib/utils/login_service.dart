@@ -18,25 +18,8 @@ class LoginController extends GetxController {
     try {
       isLoading.value = true;
       UserCredential userCredential = await FirebaseAuth.instance.signInAnonymously();
-      User? user = userCredential.user;
-      print('Signed in anonymously as: ${user?.uid}');
+      print('Signed in anonymously as: ${userCredential.user?.uid}');
 
-      try {
-        AppUser user = AppUser(
-          userId: FirebaseAuth.instance.currentUser!.uid,
-          displayName: "Anon",
-          email: "",
-          createdAt: DateTime.now(),
-          photoURL: "",
-        );
-
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .set(user.toJson());
-      } catch (e) {
-        print(e);
-      }
       Get.offAll(() => HomeScreen());
       isLoading.value = false;
     } catch (e) {
@@ -47,11 +30,6 @@ class LoginController extends GetxController {
 
   anonymousLogout() async {
     try {
-      String uid = FirebaseAuth.instance.currentUser!.uid;
-      final historyController = Get.find<HistoryController>();
-      historyController.detectionHistory.value = [];
-      deleteUserStorage(uid);
-      FirebaseFirestore.instance.collection("users").doc(uid).delete();
       await auth.signOut();
       Get.offAll(() => LoginScreen());
     } catch (e) {
