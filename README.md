@@ -5,12 +5,6 @@ Grab the latest version from [Google Play](https://play.google.com/store/apps/de
 
 ---
 
-## 📸 Screenshots
-
-
-
----
-
 ## 📱 Features
 
 - 🔍 **Plant Leaf Disease Detection**
