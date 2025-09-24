@@ -29,3 +29,6 @@ Grab the latest version from [Google Play](https://play.google.com/store/apps/de
 - **Disease Classification**: It detects 38 plant diseases
 
 ---
+## Confusion Matrix
+
+![Confusion Matrix](matrix.png)
